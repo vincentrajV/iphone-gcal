@@ -1,17 +1,17 @@
 // !$*UTF8*$!
 {
-	1D3623240D0F684500981E51 /* GoogleCalendarAppDelegate.h */ = {
+	1D3623240D0F684500981E51 /* AppDelegate.h */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {951, 671}}";
-			sepNavSelRange = "{573, 0}";
-			sepNavVisRange = "{0, 912}";
+			sepNavSelRange = "{550, 0}";
+			sepNavVisRange = "{0, 870}";
 		};
 	};
-	1D3623250D0F684500981E51 /* GoogleCalendarAppDelegate.m */ = {
+	1D3623250D0F684500981E51 /* AppDelegate.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {951, 812}}";
-			sepNavSelRange = "{1810, 0}";
-			sepNavVisRange = "{0, 1668}";
+			sepNavIntBoundsRect = "{{0, 0}, {951, 756}}";
+			sepNavSelRange = "{1536, 0}";
+			sepNavVisRange = "{0, 1598}";
 		};
 	};
 	1D6058900D05DD3D006BFB54 /* GoogleCalendar */ = {
@@ -36,9 +36,9 @@
 	};
 	28C286E00D94DF7D0034E888 /* RootViewController.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {951, 3598}}";
-			sepNavSelRange = "{9712, 0}";
-			sepNavVisRange = "{7921, 1863}";
+			sepNavIntBoundsRect = "{{0, 0}, {951, 3584}}";
+			sepNavSelRange = "{773, 0}";
+			sepNavVisRange = "{0, 1703}";
 		};
 	};
 	29B97313FDCFA39411CA2CEA /* Project object */ = {
@@ -126,31 +126,13 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 262658488;
-			PBXWorkspaceStateSaveDate = 262658488;
+			PBXPerProjectTemplateStateSaveDate = 262662148;
+			PBXWorkspaceStateSaveDate = 262662148;
 		};
 		perUserProjectItems = {
-			3034B6F60FA7D7FC0048F0DF = 3034B6F60FA7D7FC0048F0DF /* PlistBookmark */;
-			3034B7020FA7D9990048F0DF = 3034B7020FA7D9990048F0DF /* PBXTextBookmark */;
-			3034B7030FA7D9990048F0DF = 3034B7030FA7D9990048F0DF /* PBXTextBookmark */;
-			3034B7040FA7D9990048F0DF = 3034B7040FA7D9990048F0DF /* PBXTextBookmark */;
-			3034B7050FA7D9990048F0DF = 3034B7050FA7D9990048F0DF /* PBXTextBookmark */;
-			3034B7060FA7D9990048F0DF = 3034B7060FA7D9990048F0DF /* PBXTextBookmark */;
-			3034B7070FA7D9990048F0DF = 3034B7070FA7D9990048F0DF /* PBXTextBookmark */;
-			3034B7080FA7D9990048F0DF = 3034B7080FA7D9990048F0DF /* PBXTextBookmark */;
-			3034B7090FA7D9990048F0DF = 3034B7090FA7D9990048F0DF /* PBXTextBookmark */;
-			3034B70A0FA7D9990048F0DF = 3034B70A0FA7D9990048F0DF /* PBXTextBookmark */;
-			3034B70B0FA7D9990048F0DF = 3034B70B0FA7D9990048F0DF /* PBXTextBookmark */;
-			3034B70C0FA7D9990048F0DF = 3034B70C0FA7D9990048F0DF /* PBXTextBookmark */;
-			3034B70D0FA7D9990048F0DF = 3034B70D0FA7D9990048F0DF /* PBXTextBookmark */;
-			304EA5750FA7DA090046C219 /* PBXTextBookmark */ = 304EA5750FA7DA090046C219 /* PBXTextBookmark */;
-			304EA5760FA7DA090046C219 /* PlistBookmark */ = 304EA5760FA7DA090046C219 /* PlistBookmark */;
-			304EA5780FA7DA090046C219 /* PBXTextBookmark */ = 304EA5780FA7DA090046C219 /* PBXTextBookmark */;
-			304EA5790FA7DA090046C219 /* PBXTextBookmark */ = 304EA5790FA7DA090046C219 /* PBXTextBookmark */;
-			304EA57A0FA7DA090046C219 /* PlistBookmark */ = 304EA57A0FA7DA090046C219 /* PlistBookmark */;
-			304EA57C0FA7DA090046C219 /* PBXTextBookmark */ = 304EA57C0FA7DA090046C219 /* PBXTextBookmark */;
-			304EA57D0FA7DA090046C219 /* PBXTextBookmark */ = 304EA57D0FA7DA090046C219 /* PBXTextBookmark */;
-			304EA5810FA7DA740046C219 /* PBXTextBookmark */ = 304EA5810FA7DA740046C219 /* PBXTextBookmark */;
+			304EA6440FA7E7E70046C219 = 304EA6440FA7E7E70046C219 /* PBXBookmark */;
+			304EA6450FA7E7E70046C219 = 304EA6450FA7E7E70046C219 /* PBXBookmark */;
+			30C8F63D0FA7E80E001D720D /* PBXBookmark */ = 30C8F63D0FA7E80E001D720D /* PBXBookmark */;
 		};
 		sourceControlManager = 30CEF1E10FA52B81001E003C /* Source Control */;
 		userBuildSettings = {
@@ -163,235 +145,17 @@
 			sepNavVisRange = "{0, 354}";
 		};
 	};
-	3034B6F60FA7D7FC0048F0DF /* PlistBookmark */ = {
-		isa = PlistBookmark;
-		fRef = 3034B6F70FA7D7FC0048F0DF;
-		fallbackIsa = PBXBookmark;
-		isK = 0;
-		kPath = (
-		);
-		rLen = 0;
-		rLoc = 2147483647;
+	304EA6440FA7E7E70046C219 /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 30C840D90FA705D8009D29A3 /* icon.png */;
 	};
-	3034B6F70FA7D7FC0048F0DF = {
-		isa = PBXFileReference;
-		lastKnownFileType = folder;
-		sourceTree = "<group>";
+	304EA6450FA7E7E70046C219 /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 30C840D90FA705D8009D29A3 /* icon.png */;
 	};
-	3034B7020FA7D9990048F0DF /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 1D3623250D0F684500981E51 /* GoogleCalendarAppDelegate.m */;
-		name = "GoogleCalendarAppDelegate.m: 58";
-		rLen = 0;
-		rLoc = 1810;
-		rType = 0;
-		vrLen = 1518;
-		vrLoc = 0;
-	};
-	3034B7030FA7D9990048F0DF /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 1D3623240D0F684500981E51 /* GoogleCalendarAppDelegate.h */;
-		name = "GoogleCalendarAppDelegate.h: 23";
-		rLen = 0;
-		rLoc = 619;
-		rType = 0;
-		vrLen = 819;
-		vrLoc = 0;
-	};
-	3034B7040FA7D9990048F0DF /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 28C286DF0D94DF7D0034E888 /* RootViewController.h */;
-		name = "RootViewController.h: 22";
-		rLen = 0;
-		rLoc = 481;
-		rType = 0;
-		vrLen = 602;
-		vrLoc = 0;
-	};
-	3034B7050FA7D9990048F0DF /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 28C286E00D94DF7D0034E888 /* RootViewController.m */;
-		name = "RootViewController.m: 14";
-		rLen = 0;
-		rLoc = 264;
-		rType = 0;
-		vrLen = 1722;
-		vrLoc = 89;
-	};
-	3034B7060FA7D9990048F0DF /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 1D3623240D0F684500981E51 /* GoogleCalendarAppDelegate.h */;
-		name = "GoogleCalendarAppDelegate.h: 17";
-		rLen = 0;
-		rLoc = 480;
-		rType = 0;
-		vrLen = 819;
-		vrLoc = 0;
-	};
-	3034B7070FA7D9990048F0DF /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 1D3623250D0F684500981E51 /* GoogleCalendarAppDelegate.m */;
-		name = "GoogleCalendarAppDelegate.m: 58";
-		rLen = 0;
-		rLoc = 1810;
-		rType = 0;
-		vrLen = 1518;
-		vrLoc = 0;
-	};
-	3034B7080FA7D9990048F0DF /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 1D3623240D0F684500981E51 /* GoogleCalendarAppDelegate.h */;
-		name = "GoogleCalendarAppDelegate.h: 23";
-		rLen = 0;
-		rLoc = 619;
-		rType = 0;
-		vrLen = 819;
-		vrLoc = 0;
-	};
-	3034B7090FA7D9990048F0DF /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 28C286E00D94DF7D0034E888 /* RootViewController.m */;
-		name = "RootViewController.m: 14";
-		rLen = 0;
-		rLoc = 264;
-		rType = 0;
-		vrLen = 1683;
-		vrLoc = 89;
-	};
-	3034B70A0FA7D9990048F0DF /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 28C286DF0D94DF7D0034E888 /* RootViewController.h */;
-		name = "RootViewController.h: 26";
-		rLen = 0;
-		rLoc = 544;
-		rType = 0;
-		vrLen = 602;
-		vrLoc = 0;
-	};
-	3034B70B0FA7D9990048F0DF /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 28C286E00D94DF7D0034E888 /* RootViewController.m */;
-		name = "RootViewController.m: 14";
-		rLen = 0;
-		rLoc = 264;
-		rType = 0;
-		vrLen = 1722;
-		vrLoc = 89;
-	};
-	3034B70C0FA7D9990048F0DF /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 28C286DF0D94DF7D0034E888 /* RootViewController.h */;
-		name = "RootViewController.h: 22";
-		rLen = 0;
-		rLoc = 481;
-		rType = 0;
-		vrLen = 602;
-		vrLoc = 0;
-	};
-	3034B70D0FA7D9990048F0DF /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 28C286E00D94DF7D0034E888 /* RootViewController.m */;
-		name = "RootViewController.m: 245";
-		rLen = 0;
-		rLoc = 9712;
-		rType = 0;
-		vrLen = 1863;
-		vrLoc = 7921;
-	};
-	304EA5750FA7DA090046C219 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 28C286E00D94DF7D0034E888 /* RootViewController.m */;
-		name = "RootViewController.m: 245";
-		rLen = 0;
-		rLoc = 9712;
-		rType = 0;
-		vrLen = 1863;
-		vrLoc = 7921;
-	};
-	304EA5760FA7DA090046C219 /* PlistBookmark */ = {
-		isa = PlistBookmark;
-		fRef = 304EA5770FA7DA090046C219 /* Root.plist */;
-		fallbackIsa = PBXBookmark;
-		isK = 0;
-		kPath = (
-		);
-		name = "/Users/bourque/Documents/iPhone projects/GoogleCalendar/Settings.bundle/Root.plist";
-		rLen = 0;
-		rLoc = 2147483647;
-	};
-	304EA5770FA7DA090046C219 /* Root.plist */ = {
-		isa = PBXFileReference;
-		name = Root.plist;
-		path = "/Users/bourque/Documents/iPhone projects/GoogleCalendar/Settings.bundle/Root.plist";
-		sourceTree = "<absolute>";
-	};
-	304EA5780FA7DA090046C219 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 1D3623250D0F684500981E51 /* GoogleCalendarAppDelegate.m */;
-		name = "GoogleCalendarAppDelegate.m: 58";
-		rLen = 0;
-		rLoc = 1810;
-		rType = 0;
-		vrLen = 1668;
-		vrLoc = 0;
-	};
-	304EA5790FA7DA090046C219 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 28C286E00D94DF7D0034E888 /* RootViewController.m */;
-		name = "RootViewController.m: 245";
-		rLen = 0;
-		rLoc = 9712;
-		rType = 0;
-		vrLen = 1863;
-		vrLoc = 7921;
-	};
-	304EA57A0FA7DA090046C219 /* PlistBookmark */ = {
-		isa = PlistBookmark;
-		fRef = 304EA57B0FA7DA090046C219 /* Root.plist */;
-		fallbackIsa = PBXBookmark;
-		isK = 0;
-		kPath = (
-		);
-		name = "/Users/bourque/Documents/iPhone projects/GoogleCalendar/Settings.bundle/Root.plist";
-		rLen = 0;
-		rLoc = 2147483647;
-	};
-	304EA57B0FA7DA090046C219 /* Root.plist */ = {
-		isa = PBXFileReference;
-		lastKnownFileType = text.plist.xml;
-		name = Root.plist;
-		path = "/Users/bourque/Documents/iPhone projects/GoogleCalendar/Settings.bundle/Root.plist";
-		sourceTree = "<absolute>";
-	};
-	304EA57C0FA7DA090046C219 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 1D3623250D0F684500981E51 /* GoogleCalendarAppDelegate.m */;
-		name = "GoogleCalendarAppDelegate.m: 58";
-		rLen = 0;
-		rLoc = 1810;
-		rType = 0;
-		vrLen = 1668;
-		vrLoc = 0;
-	};
-	304EA57D0FA7DA090046C219 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 1D3623240D0F684500981E51 /* GoogleCalendarAppDelegate.h */;
-		name = "GoogleCalendarAppDelegate.h: 13";
-		rLen = 0;
-		rLoc = 382;
-		rType = 0;
-		vrLen = 829;
-		vrLoc = 0;
-	};
-	304EA5810FA7DA740046C219 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 1D3623240D0F684500981E51 /* GoogleCalendarAppDelegate.h */;
-		name = "GoogleCalendarAppDelegate.h: 21";
-		rLen = 0;
-		rLoc = 573;
-		rType = 0;
-		vrLen = 912;
-		vrLoc = 0;
+	30C8F63D0FA7E80E001D720D /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 30C840D90FA705D8009D29A3 /* icon.png */;
 	};
 	30CEF1D50FA52B63001E003C /* GoogleCalendar */ = {
 		isa = PBXExecutable;
