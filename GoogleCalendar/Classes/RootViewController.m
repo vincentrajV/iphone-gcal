@@ -29,6 +29,19 @@
   [self fetchCalendars];
 }
 
+- (void)viewWillAppear:(BOOL)animated{
+  [self.tableView reloadData];
+}
+
+- (void)dealloc{
+  [navigationBar release];
+  [data release];
+  [super dealloc];
+}
+
+#pragma mark -
+#pragma mark Google Data APIs
+
 - (void)fetchCalendars{
   AppDelegate *appDelegate = [AppDelegate appDelegate];
   [googleCalendarService setUserCredentialsWithUsername:appDelegate.username
@@ -128,10 +141,7 @@
   [alert release];
 }
 
-- (void)viewWillAppear:(BOOL)animated{
-  [self.tableView reloadData];
-}
-
+#pragma mark -
 #pragma mark Table view methods
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
@@ -139,6 +149,15 @@
     return 1;
 
   return [data count];
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section{
+  if( !data )
+    return @"Please wait...";
+  
+  NSMutableDictionary *dictionary = [data objectAtIndex:section];
+  GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
+  return [[calendar title] stringValue];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
@@ -153,15 +172,6 @@
     count++;
 
   return count;
-}
-
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section{
-  if( !data )
-    return @"Please wait...";
-
-  NSMutableDictionary *dictionary = [data objectAtIndex:section];
-  GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
-  return [[calendar title] stringValue];
 }
 
 // Customize the appearance of table view cells.
@@ -241,11 +251,5 @@
     }
 }
 */
-
-- (void)dealloc{
-  [navigationBar release];
-  [data release];
-  [super dealloc];
-}
 
 @end
