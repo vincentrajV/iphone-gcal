@@ -17,8 +17,6 @@
 		28C286E10D94DF7D0034E888 /* RootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28C286E00D94DF7D0034E888 /* RootViewController.m */; };
 		301B63B70FA7D04C00F334EE /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 301B63B60FA7D04C00F334EE /* Settings.bundle */; };
 		30C840DA0FA705D8009D29A3 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 30C840D90FA705D8009D29A3 /* icon.png */; };
-		30CEF2750FA53C66001E003C /* SettingsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 30CEF2740FA53C66001E003C /* SettingsView.xib */; };
-		30CEF2770FA53C80001E003C /* GoogleLogo.png in Resources */ = {isa = PBXBuildFile; fileRef = 30CEF2760FA53C80001E003C /* GoogleLogo.png */; };
 		30CEFDA60FA66BC0001E003C /* GDataFramework.m in Sources */ = {isa = PBXBuildFile; fileRef = 30CEFC190FA66BC0001E003C /* GDataFramework.m */; };
 		30CEFDA70FA66BC0001E003C /* GDataUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 30CEFC1B0FA66BC0001E003C /* GDataUtilities.m */; };
 		30CEFDA80FA66BC0001E003C /* GDataXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 30CEFC1C0FA66BC0001E003C /* GDataXMLNode.m */; };
@@ -110,8 +108,6 @@
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		301B63B60FA7D04C00F334EE /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		30C840D90FA705D8009D29A3 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
-		30CEF2740FA53C66001E003C /* SettingsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SettingsView.xib; sourceTree = "<group>"; };
-		30CEF2760FA53C80001E003C /* GoogleLogo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GoogleLogo.png; sourceTree = "<group>"; };
 		30CEFC160FA66BC0001E003C /* GData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GData.h; path = "../Google Data APIs/Source/GData.h"; sourceTree = SOURCE_ROOT; };
 		30CEFC170FA66BC0001E003C /* GDataDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GDataDefines.h; path = "../Google Data APIs/Source/GDataDefines.h"; sourceTree = SOURCE_ROOT; };
 		30CEFC180FA66BC0001E003C /* GDataFramework.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GDataFramework.h; path = "../Google Data APIs/Source/GDataFramework.h"; sourceTree = SOURCE_ROOT; };
@@ -328,8 +324,6 @@
 			isa = PBXGroup;
 			children = (
 				30C840D90FA705D8009D29A3 /* icon.png */,
-				30CEF2760FA53C80001E003C /* GoogleLogo.png */,
-				30CEF2740FA53C66001E003C /* SettingsView.xib */,
 				2899E55F0DE3E45000AC0155 /* RootViewController.xib */,
 				28AD735F0D9D9599002E5188 /* MainWindow.xib */,
 				8D1107310486CEB800E47090 /* Info.plist */,
@@ -622,8 +616,6 @@
 			files = (
 				28AD73600D9D9599002E5188 /* MainWindow.xib in Resources */,
 				2899E5600DE3E45000AC0155 /* RootViewController.xib in Resources */,
-				30CEF2750FA53C66001E003C /* SettingsView.xib in Resources */,
-				30CEF2770FA53C80001E003C /* GoogleLogo.png in Resources */,
 				30C840DA0FA705D8009D29A3 /* icon.png in Resources */,
 				301B63B70FA7D04C00F334EE /* Settings.bundle in Resources */,
 			);
