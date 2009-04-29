@@ -11,7 +11,7 @@
 
 @implementation RootViewController
 
-@synthesize settingsViewController, navigationBar, data;
+@synthesize navigationBar, data;
 
 - (id)initWithCoder:(NSCoder *)aCoder{
   if( self=[super initWithCoder:aCoder] ){
@@ -126,36 +126,6 @@
                                         otherButtonTitles:nil];
   [alert show];
   [alert release];
-}
-
-- (IBAction)toggleSettings{
-  if( !settingsViewController )		// Lazy loading
-    [SettingsViewController loadIntoRootViewController:self];
-
-  GoogleCalendarAppDelegate *appDelegate = [GoogleCalendarAppDelegate appDelegate];
-  UINavigationController *navigationController = [appDelegate navigationController];
-
-  UIView *settingsView = settingsViewController.view;
-
-  [UIView beginAnimations:nil context:NULL];
-  [UIView setAnimationDuration:1];
-
-  if( ![settingsView superview] ){
-    [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:self.view cache:YES];
-    [settingsViewController viewWillAppear:YES];
-    [self.view addSubview:settingsView];
-    [self.view insertSubview:navigationBar aboveSubview:settingsView];
-    [settingsViewController viewDidAppear:YES];
-    [navigationController setNavigationBarHidden:YES animated:YES];
-  }else{
-    [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft forView:self.view cache:YES];
-    [settingsViewController viewWillDisappear:YES];
-    [settingsView removeFromSuperview];
-    [navigationBar removeFromSuperview];
-    [settingsViewController viewDidDisappear:YES];
-    [navigationController setNavigationBarHidden:NO animated:YES];
-  }
-  [UIView commitAnimations];
 }
 
 - (void)viewWillAppear:(BOOL)animated{
@@ -273,7 +243,6 @@
 */
 
 - (void)dealloc{
-  [settingsViewController release];
   [navigationBar release];
   [data release];
   [super dealloc];
