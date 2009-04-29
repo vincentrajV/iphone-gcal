@@ -124,7 +124,7 @@
   NSString *title, *msg;
   if( [error code]==kGDataBadAuthentication ){
     title = @"Authentication Failed";
-    msg = @"Invalid username and/or password";
+    msg = @"Invalid username/password\n\nPlease go to the iPhone's settings to change your Google account credentials.";
   }else{
     // some other error authenticating or retrieving the GData object or a 304 status
     // indicating the data has not been modified since it was previously fetched
