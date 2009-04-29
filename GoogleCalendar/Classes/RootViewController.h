@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SettingsViewController.h"
 #import "GDataCalendar.h"
 
 #define KEY_CALENDAR @"calendar"
@@ -15,17 +14,14 @@
 #define KEY_TICKET @"ticket"
 
 @interface RootViewController : UITableViewController{
-  SettingsViewController *settingsViewController;
   UINavigationBar* navigationBar;
   NSMutableArray *data;
   GDataServiceGoogleCalendar *googleCalendarService;
 }
 
 - (void)fetchCalendars;
-- (IBAction)toggleSettings;
 
 @property (nonatomic, retain) UINavigationBar* navigationBar;
-@property (nonatomic, retain) SettingsViewController *settingsViewController;
 @property (nonatomic, retain) NSMutableArray *data;
 
 @end
