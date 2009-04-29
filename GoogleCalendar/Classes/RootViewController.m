@@ -7,7 +7,7 @@
 //
 
 #import "RootViewController.h"
-#import "GoogleCalendarAppDelegate.h"
+#import "AppDelegate.h"
 
 @implementation RootViewController
 
@@ -30,7 +30,7 @@
 }
 
 - (void)fetchCalendars{
-  GoogleCalendarAppDelegate *appDelegate = [GoogleCalendarAppDelegate appDelegate];
+  AppDelegate *appDelegate = [AppDelegate appDelegate];
   [googleCalendarService setUserCredentialsWithUsername:appDelegate.username
                                                password:appDelegate.password];
 
