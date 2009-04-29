@@ -8,16 +8,20 @@
 
 #import "RootViewController.h"
 #import "AppDelegate.h"
+#import "EditingViewController.h"
 
 @implementation RootViewController
 
-@synthesize navigationBar, data;
+@synthesize navigationBar, data, editingViewController;
 
 - (id)initWithCoder:(NSCoder *)aCoder{
   if( self=[super initWithCoder:aCoder] ){
     googleCalendarService = [[GDataServiceGoogleCalendar alloc] init];
     [googleCalendarService setServiceShouldFollowNextLinks:YES];
     [googleCalendarService setUserAgent:@"DanBourque-GTUGDemo-1.0"];
+    AppDelegate *appDelegate = [AppDelegate appDelegate];
+    [googleCalendarService setUserCredentialsWithUsername:appDelegate.username
+                                                 password:appDelegate.password];
   }
   return self;
 }
@@ -25,7 +29,9 @@
 - (void)viewDidLoad{
   [super viewDidLoad];	
   self.navigationItem.rightBarButtonItem = self.editButtonItem;
-
+  self.navigationItem.leftBarButtonItem = [[UIBarButtonItem  alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh
+                                                                                         target:self
+                                                                                         action:@selector( fetchCalendars )];
   [self fetchCalendars];
 }
 
@@ -33,23 +39,29 @@
   [self.tableView reloadData];
 }
 
+- (EditingViewController *)editingViewController{
+  // Instantiate the editing view controller if necessary.
+  if( !editingViewController ){
+    EditingViewController *controller = [[EditingViewController alloc] initWithNibName:@"EditingView" bundle:nil];
+    self.editingViewController = controller;
+    [controller release];
+  }
+  return editingViewController;
+}
+
 - (void)dealloc{
   [navigationBar release];
   [data release];
+  [editingViewController release];
   [super dealloc];
 }
 
-#pragma mark -
 #pragma mark Google Data APIs
 
 - (void)fetchCalendars{
-  AppDelegate *appDelegate = [AppDelegate appDelegate];
-  [googleCalendarService setUserCredentialsWithUsername:appDelegate.username
-                                               password:appDelegate.password];
-
   // Note: The next call returns a ticket, that could be used to cancel the current request if the user chose to abort early.
   // However since I didn't expose such a capability to the user, I don't even assign it to a variable.
-  [googleCalendarService fetchCalendarFeedForUsername:appDelegate.username
+  [googleCalendarService fetchCalendarFeedForUsername:[AppDelegate appDelegate].username
                                              delegate:self
                                     didFinishSelector:@selector( calendarsTicket:finishedWithFeed: )
                                       didFailSelector:@selector( ticket:failedWithError: )];
@@ -141,8 +153,7 @@
   [alert release];
 }
 
-#pragma mark -
-#pragma mark Table view methods
+#pragma mark Table Content and Appearance
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
   if( !data )		// The data hasn't come back yet.  Allow the "Please wait..." message to show up.
@@ -224,32 +235,103 @@
   return self.editing?UITableViewCellAccessoryDisclosureIndicator:UITableViewCellAccessoryNone;
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-  // Navigation logic may go here. Create and push another view controller.
-  RootViewController *anotherViewController = [[RootViewController alloc] initWithNibName:@"RootViewController" bundle:nil];
-  [self.navigationController pushViewController:anotherViewController animated:YES];
-  [anotherViewController release];
+// The editing style for a row is the kind of button displayed to the left of the cell when in editing mode.
+- (UITableViewCellEditingStyle)tableView:(UITableView *)aTableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath{
+  // No editing style if not editing or the index path is nil.
+  if( !self.editing || !indexPath )
+    return UITableViewCellEditingStyleNone;
+  // Determine the editing style based on whether the cell is a placeholder for adding content or already 
+  // existing content. Existing content can be deleted.
+  NSDictionary *section = [data objectAtIndex:indexPath.section];
+  if( section ){
+    NSArray *content = [section valueForKey:@"content"];
+    if( content ){
+      if( indexPath.row>=[content count] )
+        return UITableViewCellEditingStyleInsert;
+      else
+        return UITableViewCellEditingStyleDelete;
+    }
+  }
+  return UITableViewCellEditingStyleNone;
 }
 
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath{
-  // Return NO if you do not want the specified item to be editable.
-  return YES;
-}
-*/
+#pragma mark Table Selection
 
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath{
-  if (editingStyle == UITableViewCellEditingStyleDelete){
-    // Delete the row from the data source
-    [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
+// Called after selection. In editing mode, this will navigate to a new view controller.
+- (void)tableView:(UITableView *)aTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+  if( self.editing ){
+    // Don't maintain the selection. We will navigate to a new view so there's no reason to keep the selection here.
+    [self.tableView deselectRowAtIndexPath:indexPath animated:NO];
+    // Go to edit view
+    NSDictionary *section = [data objectAtIndex:indexPath.section];
+    if( section ){
+      // Make a local reference to the editing view controller.
+      EditingViewController *controller = self.editingViewController;
+      // Pass the item being edited to the editing controller.
+      NSMutableArray *content = [section valueForKey:@"content"];
+      if( content && indexPath.row<[content count] ){
+        // The row selected is one with existing content, so that content will be edited.
+        NSMutableDictionary *item = (NSMutableDictionary *)[content objectAtIndex:indexPath.row];
+        controller.editingItem = item;
+      }else{
+        // The row selected is a placeholder for adding content. The editor should create a new item.
+        controller.editingItem = nil;
+        controller.editingContent = content;
+      }
+      // Additional information for the editing controller.
+      controller.sectionName = [section valueForKey:@"name"];
+      [self.navigationController pushViewController:controller animated:YES];
+    }
+  }else  // This will give the user visual feedback that the cell was selected but fade out to indicate that no action is taken.
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+#pragma mark Editing
+
+// Set the editing state of the view controller. We pass this down to the table view and also modify the content
+// of the table to insert a placeholder row for adding content when in editing mode.
+- (void)setEditing:(BOOL)editing animated:(BOOL)animated{
+  [super setEditing:editing animated:animated];
+  // Calculate the index paths for all of the placeholder rows based on the number of items in each section.
+  NSArray *indexPaths = [NSArray arrayWithObjects:
+                        [NSIndexPath indexPathForRow:[[[data objectAtIndex:0] valueForKeyPath:@"content.@count"] intValue] inSection:0],
+                        [NSIndexPath indexPathForRow:[[[data objectAtIndex:1] valueForKeyPath:@"content.@count"] intValue] inSection:1],
+                        [NSIndexPath indexPathForRow:[[[data objectAtIndex:2] valueForKeyPath:@"content.@count"] intValue] inSection:2], nil];
+  [self.tableView beginUpdates];
+  [self.tableView setEditing:editing animated:YES];
+  if( editing )  // Show the placeholder rows
+    [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationTop];
+  else    // Hide the placeholder rows.
+    [self.tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationTop];
+  [self.tableView endUpdates];
+}
+
+// Update the data model according to edit actions delete or insert.
+- (void)tableView:(UITableView *)aTableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
+                                             forRowAtIndexPath:(NSIndexPath *)indexPath{
+  if( editingStyle==UITableViewCellEditingStyleDelete ){
+    NSDictionary *section = [data objectAtIndex:indexPath.section];
+    if( section ){
+      NSMutableArray *content = [section valueForKey:@"content"];
+      if( content && indexPath.row<[content count] )
+        [content removeObjectAtIndex:indexPath.row];
+    }
+    [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
   }else
     if( editingStyle==UITableViewCellEditingStyleInsert ){
-      // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+      NSDictionary *section = [data objectAtIndex:indexPath.section];
+      if( section ){
+        // Make a local reference to the editing view controller.
+        EditingViewController *controller = self.editingViewController;
+        NSMutableArray *content = [section valueForKey:@"content"];
+        // A "nil" editingItem indicates the editor should create a new item.
+        controller.editingItem = nil;
+        // The group to which the new item should be added.
+        controller.editingContent = content;
+        controller.sectionName = [section valueForKey:@"name"];
+        [self.navigationController pushViewController:controller animated:YES];
+      }
     }
 }
-*/
 
 @end
