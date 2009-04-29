@@ -23,7 +23,7 @@
   EditingViewController *editingViewController;
 }
 
-- (void)fetchCalendars;
+- (void)refresh;
 
 @property (nonatomic, retain) UINavigationBar* navigationBar;
 @property (nonatomic, retain) NSMutableArray *data;
