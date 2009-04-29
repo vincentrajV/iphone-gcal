@@ -9,8 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "RootViewController.h"
 
-#define PREF_USERNAME CFSTR( "username" )
-#define PREF_PASSWORD CFSTR( "password" )
+// These must match what are defined in the Settings.bundle/Root.plist dictionary.
+#define PREF_USERNAME CFSTR( "username_pref" )
+#define PREF_PASSWORD CFSTR( "password_pref" )
 
 @interface GoogleCalendarAppDelegate : NSObject <UIApplicationDelegate>{
   UIWindow *window;
