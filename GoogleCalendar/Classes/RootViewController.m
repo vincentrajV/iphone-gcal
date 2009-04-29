@@ -19,9 +19,6 @@
     googleCalendarService = [[GDataServiceGoogleCalendar alloc] init];
     [googleCalendarService setServiceShouldFollowNextLinks:YES];
     [googleCalendarService setUserAgent:@"DanBourque-GTUGDemo-1.0"];
-    AppDelegate *appDelegate = [AppDelegate appDelegate];
-    [googleCalendarService setUserCredentialsWithUsername:appDelegate.username
-                                                 password:appDelegate.password];
   }
   return self;
 }
@@ -31,8 +28,12 @@
   self.navigationItem.rightBarButtonItem = self.editButtonItem;
   self.navigationItem.leftBarButtonItem = [[UIBarButtonItem  alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh
                                                                                          target:self
-                                                                                         action:@selector( fetchCalendars )];
-  [self fetchCalendars];
+                                                                                         action:@selector( refresh )];
+  // At this point, the application delegate will have loaded the app's preferences, so set the service's credentials.
+  AppDelegate *appDelegate = [AppDelegate appDelegate];
+  [googleCalendarService setUserCredentialsWithUsername:appDelegate.username
+                                               password:appDelegate.password];  
+  [self refresh];   // Start the fetch process.
 }
 
 - (void)viewWillAppear:(BOOL)animated{
@@ -40,8 +41,7 @@
 }
 
 - (EditingViewController *)editingViewController{
-  // Instantiate the editing view controller if necessary.
-  if( !editingViewController ){
+  if( !editingViewController ){  // Lazily Instantiate the editing view controller if necessary.
     EditingViewController *controller = [[EditingViewController alloc] initWithNibName:@"EditingView" bundle:nil];
     self.editingViewController = controller;
     [controller release];
@@ -58,7 +58,7 @@
 
 #pragma mark Google Data APIs
 
-- (void)fetchCalendars{
+- (void)refresh{
   // Note: The next call returns a ticket, that could be used to cancel the current request if the user chose to abort early.
   // However since I didn't expose such a capability to the user, I don't even assign it to a variable.
   [googleCalendarService fetchCalendarFeedForUsername:[AppDelegate appDelegate].username
