@@ -23,6 +23,21 @@
   [self storeSettings];
 }
 
++ (AppDelegate *)appDelegate{		// Static accessor
+  return (AppDelegate *)[[UIApplication sharedApplication] delegate];
+}
+
+- (void)dealloc{
+  [navigationController release];
+  [window release];
+  [username release];
+  [password release];
+  [super dealloc];
+}
+
+#pragma mark -
+#pragma mark Settings accessors
+
 - (void)loadSettings{
   CFPreferencesAppSynchronize( kCFPreferencesCurrentApplication );
 
@@ -41,18 +56,6 @@
   CFPreferencesSetAppValue( PREF_USERNAME, username, kCFPreferencesCurrentApplication );
   CFPreferencesSetAppValue( PREF_PASSWORD, password, kCFPreferencesCurrentApplication );
   CFPreferencesAppSynchronize( kCFPreferencesCurrentApplication );
-}
-
-+ (AppDelegate *)appDelegate{		// Static accessor
-  return (AppDelegate *)[[UIApplication sharedApplication] delegate];
-}
-
-- (void)dealloc{
-  [navigationController release];
-  [window release];
-  [username release];
-  [password release];
-  [super dealloc];
 }
 
 @end
