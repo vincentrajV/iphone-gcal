@@ -12,7 +12,7 @@
 
 @implementation RootViewController
 
-@synthesize navigationBar, data, editingViewController;
+@synthesize navigationBar, data, editingViewController, statusMessage;
 
 - (id)initWithCoder:(NSCoder *)aCoder{
   if( self=[super initWithCoder:aCoder] ){
@@ -61,6 +61,7 @@
 - (void)refresh{
   // Note: The next call returns a ticket, that could be used to cancel the current request if the user chose to abort early.
   // However since I didn't expose such a capability to the user, I don't even assign it to a variable.
+  statusMessage = @"Please wait...";
   [googleCalendarService fetchCalendarFeedForUsername:[AppDelegate appDelegate].username
                                              delegate:self
                                     didFinishSelector:@selector( calendarsTicket:finishedWithFeed: )
@@ -143,6 +144,7 @@
     title = @"Unknown Error";
     msg = [error localizedDescription];
   }
+  statusMessage = title;  // Update the status message shown to the user.
 
   UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title
                                                   message:msg
@@ -151,6 +153,8 @@
                                         otherButtonTitles:nil];
   [alert show];
   [alert release];
+  
+  [self.tableView reloadData];
 }
 
 #pragma mark Table Content and Appearance
@@ -158,13 +162,13 @@
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
   if( !data )		// The data hasn't come back yet.  Allow the "Please wait..." message to show up.
     return 1;
-
+  
   return [data count];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section{
   if( !data )
-    return @"Please wait...";
+    return statusMessage;
   
   NSMutableDictionary *dictionary = [data objectAtIndex:section];
   GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
