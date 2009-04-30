@@ -21,6 +21,7 @@
   NSMutableArray *data;
   GDataServiceGoogleCalendar *googleCalendarService;
   EditingViewController *editingViewController;
+  NSString *statusMessage;
 }
 
 - (void)refresh;
@@ -28,5 +29,6 @@
 @property (nonatomic, retain) UINavigationBar* navigationBar;
 @property (nonatomic, retain) NSMutableArray *data;
 @property (nonatomic, retain) EditingViewController *editingViewController;
+@property (nonatomic, retain) NSString *statusMessage;
 
 @end
