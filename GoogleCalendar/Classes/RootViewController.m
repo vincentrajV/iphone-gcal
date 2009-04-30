@@ -133,6 +133,23 @@
   [self.tableView reloadData];
 }
 
+- (void)deleteCalendarEvent:(GDataEntryCalendarEvent *)calendarEvent{
+  [googleCalendarService deleteCalendarEventEntry:calendarEvent
+                                         delegate:self
+                                didFinishSelector:@selector( deletionTicket:deletedEntry: )
+                                  didFailSelector:@selector( ticket:failedWithError: )];
+}
+
+- (void)deletionTicket:(GDataServiceTicket *)ticket deletedEntry:(GDataEntryCalendarEvent *)calendarEvent{
+  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Success"
+                                                  message:@"The event was deleted from the cloud."
+                                                 delegate:nil
+                                        cancelButtonTitle:@"Ok"
+                                        otherButtonTitles:nil];
+  [alert show];
+  [alert release];
+}
+
 - (void)ticket:(GDataServiceTicket *)ticket failedWithError:(NSError *)error{
   NSString *title, *msg;
   if( [error code]==kGDataBadAuthentication ){
@@ -241,16 +258,15 @@
 
 // The editing style for a row is the kind of button displayed to the left of the cell when in editing mode.
 - (UITableViewCellEditingStyle)tableView:(UITableView *)aTableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath{
-  // No editing style if not editing or the index path is nil.
   if( !self.editing || !indexPath )
-    return UITableViewCellEditingStyleNone;
+    return UITableViewCellEditingStyleNone; // No editing style if not editing or the index path is nil.
   // Determine the editing style based on whether the cell is a placeholder for adding content or already 
   // existing content. Existing content can be deleted.
-  NSDictionary *section = [data objectAtIndex:indexPath.section];
-  if( section ){
-    NSArray *content = [section valueForKey:@"content"];
-    if( content ){
-      if( indexPath.row>=[content count] )
+  NSDictionary *dictionary = [data objectAtIndex:indexPath.section];
+  if( dictionary ){
+    NSArray *events = [dictionary valueForKey:KEY_EVENTS];
+    if( events ){
+      if( indexPath.row>=[events count] )
         return UITableViewCellEditingStyleInsert;
       else
         return UITableViewCellEditingStyleDelete;
@@ -267,23 +283,25 @@
     // Don't maintain the selection. We will navigate to a new view so there's no reason to keep the selection here.
     [self.tableView deselectRowAtIndexPath:indexPath animated:NO];
     // Go to edit view
-    NSDictionary *section = [data objectAtIndex:indexPath.section];
-    if( section ){
+    NSDictionary *dictionary = [data objectAtIndex:indexPath.section];
+    if( dictionary ){
       // Make a local reference to the editing view controller.
       EditingViewController *controller = self.editingViewController;
       // Pass the item being edited to the editing controller.
-      NSMutableArray *content = [section valueForKey:@"content"];
-      if( content && indexPath.row<[content count] ){
+      NSMutableArray *events = [dictionary valueForKey:KEY_EVENTS];
+      if( dictionary && indexPath.row<[events count] ){
         // The row selected is one with existing content, so that content will be edited.
-        NSMutableDictionary *item = (NSMutableDictionary *)[content objectAtIndex:indexPath.row];
+        NSMutableDictionary *item = (NSMutableDictionary *)[events objectAtIndex:indexPath.row];
         controller.editingItem = item;
       }else{
         // The row selected is a placeholder for adding content. The editor should create a new item.
         controller.editingItem = nil;
-        controller.editingContent = content;
+        controller.editingContent = events;
       }
       // Additional information for the editing controller.
-      controller.sectionName = [section valueForKey:@"name"];
+      GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
+      controller.sectionName = [[calendar title] stringValue];
+      
       [self.navigationController pushViewController:controller animated:YES];
     }
   }else  // This will give the user visual feedback that the cell was selected but fade out to indicate that no action is taken.
@@ -297,10 +315,13 @@
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated{
   [super setEditing:editing animated:animated];
   // Calculate the index paths for all of the placeholder rows based on the number of items in each section.
-  NSArray *indexPaths = [NSArray arrayWithObjects:
-                        [NSIndexPath indexPathForRow:[[[data objectAtIndex:0] valueForKeyPath:@"content.@count"] intValue] inSection:0],
-                        [NSIndexPath indexPathForRow:[[[data objectAtIndex:1] valueForKeyPath:@"content.@count"] intValue] inSection:1],
-                        [NSIndexPath indexPathForRow:[[[data objectAtIndex:2] valueForKeyPath:@"content.@count"] intValue] inSection:2], nil];
+  NSMutableArray *indexPaths = [[NSMutableArray alloc] init];
+  for( int section=0; section<[data count]; section++ ){
+    NSMutableDictionary *dictionary = [data objectAtIndex:section];
+    NSArray *events = [dictionary objectForKey:KEY_EVENTS];
+    [indexPaths addObject:[NSIndexPath indexPathForRow:[events count] inSection:section]];
+  }
+  
   [self.tableView beginUpdates];
   [self.tableView setEditing:editing animated:YES];
   if( editing )  // Show the placeholder rows
@@ -308,31 +329,41 @@
   else    // Hide the placeholder rows.
     [self.tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationTop];
   [self.tableView endUpdates];
+  [indexPaths release];
 }
 
 // Update the data model according to edit actions delete or insert.
 - (void)tableView:(UITableView *)aTableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
                                              forRowAtIndexPath:(NSIndexPath *)indexPath{
   if( editingStyle==UITableViewCellEditingStyleDelete ){
-    NSDictionary *section = [data objectAtIndex:indexPath.section];
-    if( section ){
-      NSMutableArray *content = [section valueForKey:@"content"];
-      if( content && indexPath.row<[content count] )
-        [content removeObjectAtIndex:indexPath.row];
+    NSDictionary *dictionary = [data objectAtIndex:indexPath.section];
+    if( dictionary ){
+      NSMutableArray *events = [dictionary valueForKey:KEY_EVENTS];
+      if( events && indexPath.row<[events count] ){
+        GDataEntryCalendarEvent *event = [events objectAtIndex:indexPath.row];
+        if( event ){
+          [self deleteCalendarEvent:event];
+          [events removeObject:event];
+          // We can animate the deletion, optimistic that it will be deleted at the cloud.  If it fails, it will simply reappear.
+          [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];      
+        }
+      }
     }
-    [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
   }else
     if( editingStyle==UITableViewCellEditingStyleInsert ){
-      NSDictionary *section = [data objectAtIndex:indexPath.section];
-      if( section ){
+      NSDictionary *dictionary = [data objectAtIndex:indexPath.section];
+      if( dictionary ){
         // Make a local reference to the editing view controller.
         EditingViewController *controller = self.editingViewController;
-        NSMutableArray *content = [section valueForKey:@"content"];
+        NSMutableArray *events = [dictionary valueForKey:KEY_EVENTS];
         // A "nil" editingItem indicates the editor should create a new item.
         controller.editingItem = nil;
         // The group to which the new item should be added.
-        controller.editingContent = content;
-        controller.sectionName = [section valueForKey:@"name"];
+        controller.editingContent = events;
+        
+        GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
+        controller.sectionName = [[calendar title] stringValue];
+        
         [self.navigationController pushViewController:controller animated:YES];
       }
     }
