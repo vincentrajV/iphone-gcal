@@ -105,11 +105,11 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA</b
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIMultipleTouchEnabled">YES</bool>
-						<bool key="IBUIUserInteractionEnabled">NO</bool>
 						<bool key="IBUIShowsHorizontalScrollIndicator">NO</bool>
 						<bool key="IBUIDelaysContentTouches">NO</bool>
 						<bool key="IBUICanCancelContentTouches">NO</bool>
 						<bool key="IBUIBouncesZoom">NO</bool>
+						<bool key="IBUIEditable">NO</bool>
 						<string type="base64-UTF8" key="IBUIText">KFRoZSB0aW1lIGNvbnRyb2wgYmVsb3cgb25seSBjb250cm9scyB0aGUgZXZlbnQncyBTdGFydCB0aW1l
 LiAgU3VwcG9ydCBmb3IgRW5kIHRpbWUsIEFsbC1EYXkgZXZlbnRzLCBhbmQgcmVtaW5kZXJzIGNvdWxk
 IGJlIGltcGxlbWVudGVkIGFzIGEgbXVsdGktdGllciBlZGl0b3IuKQ</string>
@@ -204,8 +204,8 @@ IGJlIGltcGxlbWVudGVkIGFzIGEgbXVsdGktdGllciBlZGl0b3IuKQ</string>
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="730094656"/>
 							<reference ref="388443419"/>
-							<reference ref="529481606"/>
 							<reference ref="156247611"/>
+							<reference ref="529481606"/>
 						</object>
 						<reference key="parent" ref="360949347"/>
 					</object>
