@@ -15,7 +15,7 @@
   self.title = calendarName;
   // If the editing item is nil, that indicates a new item should be created
   if( !editingItem ){
-    self.editingItem = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"when?", KEY_WHEN, @"what?", KEY_WHAT, @"where?", KEY_WHERE, nil];
+    self.editingItem = [NSMutableDictionary dictionaryWithObjectsAndKeys:[NSDate date], KEY_WHEN, @"", KEY_WHAT, @"", KEY_WHERE, nil];
     // Rather than immediately add the new item to the content array, set a flag.
     // When the user saves, add the item then; if the user cancels, no action is needed.
     newItem = YES;
