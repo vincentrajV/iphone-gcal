@@ -16,6 +16,7 @@
 		28AD73600D9D9599002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD735F0D9D9599002E5188 /* MainWindow.xib */; };
 		28C286E10D94DF7D0034E888 /* RootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28C286E00D94DF7D0034E888 /* RootViewController.m */; };
 		301B63B70FA7D04C00F334EE /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 301B63B60FA7D04C00F334EE /* Settings.bundle */; };
+		30AD005D0FAC022B003C99DE /* EditingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 30AD005C0FAC022B003C99DE /* EditingView.xib */; };
 		30AFC8B20FA80FEB00220592 /* EditingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AFC8AF0FA80FEB00220592 /* EditingViewController.m */; };
 		30C840DA0FA705D8009D29A3 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 30C840D90FA705D8009D29A3 /* icon.png */; };
 		30CEFDA60FA66BC0001E003C /* GDataFramework.m in Sources */ = {isa = PBXBuildFile; fileRef = 30CEFC190FA66BC0001E003C /* GDataFramework.m */; };
@@ -93,7 +94,6 @@
 		30CEFDF30FA66BC0001E003C /* GDataQueryCalendar.m in Sources */ = {isa = PBXBuildFile; fileRef = 30CEFCBF0FA66BC0001E003C /* GDataQueryCalendar.m */; };
 		30CEFDF40FA66BC0001E003C /* GDataServiceGoogleCalendar.m in Sources */ = {isa = PBXBuildFile; fileRef = 30CEFCC10FA66BC0001E003C /* GDataServiceGoogleCalendar.m */; };
 		30E7BEF50FAB50ED00E08E92 /* DetailCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 30E7BEF40FAB50ED00E08E92 /* DetailCell.m */; };
-		30E7C0D30FABA31900E08E92 /* EditingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 30E7C0D20FABA31900E08E92 /* EditingView.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -110,6 +110,7 @@
 		28C286E00D94DF7D0034E888 /* RootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RootViewController.m; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		301B63B60FA7D04C00F334EE /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
+		30AD005C0FAC022B003C99DE /* EditingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EditingView.xib; sourceTree = "<group>"; };
 		30AFC8AE0FA80FEB00220592 /* EditingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditingViewController.h; sourceTree = "<group>"; };
 		30AFC8AF0FA80FEB00220592 /* EditingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditingViewController.m; sourceTree = "<group>"; };
 		30C840D90FA705D8009D29A3 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
@@ -268,7 +269,6 @@
 		30CEFCC10FA66BC0001E003C /* GDataServiceGoogleCalendar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GDataServiceGoogleCalendar.m; path = "../Google Data APIs/Source/Clients/Calendar/GDataServiceGoogleCalendar.m"; sourceTree = SOURCE_ROOT; };
 		30E7BEF30FAB50ED00E08E92 /* DetailCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailCell.h; sourceTree = "<group>"; };
 		30E7BEF40FAB50ED00E08E92 /* DetailCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailCell.m; sourceTree = "<group>"; };
-		30E7C0D20FABA31900E08E92 /* EditingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = EditingView.xib; path = Classes/EditingView.xib; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -338,7 +338,7 @@
 				30C840D90FA705D8009D29A3 /* icon.png */,
 				28AD735F0D9D9599002E5188 /* MainWindow.xib */,
 				2899E55F0DE3E45000AC0155 /* RootViewController.xib */,
-				30E7C0D20FABA31900E08E92 /* EditingView.xib */,
+				30AD005C0FAC022B003C99DE /* EditingView.xib */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 			);
 			name = Resources;
@@ -631,7 +631,7 @@
 				2899E5600DE3E45000AC0155 /* RootViewController.xib in Resources */,
 				30C840DA0FA705D8009D29A3 /* icon.png in Resources */,
 				301B63B70FA7D04C00F334EE /* Settings.bundle in Resources */,
-				30E7C0D30FABA31900E08E92 /* EditingView.xib in Resources */,
+				30AD005D0FAC022B003C99DE /* EditingView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
