@@ -8,6 +8,7 @@
 
 #import "RootViewController.h"
 #import "AppDelegate.h"
+#import "DetailCell.h"
 #import "EditingViewController.h"
 
 @implementation RootViewController
@@ -56,6 +57,28 @@
   [super dealloc];
 }
 
+#pragma mark Utility methods for searching index paths.
+
+- (NSDictionary *)dictionaryForIndexPath:(NSIndexPath *)indexPath{
+  if( indexPath.section<[data count] )
+    return [data objectAtIndex:indexPath.section];
+  return nil;
+}
+
+- (NSMutableArray *)eventsForIndexPath:(NSIndexPath *)indexPath{
+  NSDictionary *dictionary = [self dictionaryForIndexPath:indexPath];
+  if( dictionary )
+    return [dictionary valueForKey:KEY_EVENTS];
+  return nil;
+}
+
+- (GDataEntryCalendarEvent *)eventForIndexPath:(NSIndexPath *)indexPath{
+  NSMutableArray *events = [self eventsForIndexPath:indexPath];
+  if( events && indexPath.row<[events count] )
+    return [events objectAtIndex:indexPath.row];
+  return nil;
+}
+
 #pragma mark Google Data APIs
 
 - (void)refresh{
@@ -86,15 +109,18 @@
     NSURL *feedURL = [[calendar alternateLink] URL];
     if( feedURL ){
       GDataQueryCalendar* query = [GDataQueryCalendar calendarQueryWithFeedURL:feedURL];
-      int seconds = 60*60*24*31;	// 31 days.
-
-      NSDate *minDate = [NSDate dateWithTimeIntervalSinceNow:-seconds];
+      
+      NSDate *minDate = [NSDate dateWithTimeIntervalSinceNow:-60*60*24*15];  // From 15 days ago...
       GDataDateTime *updatedMinTime = [GDataDateTime dateTimeWithDate:minDate timeZone:[NSTimeZone systemTimeZone]];
       [query setMinimumStartTime:updatedMinTime];
 
-      NSDate *maxDate = [NSDate dateWithTimeIntervalSinceNow:seconds];
+      NSDate *maxDate = [NSDate dateWithTimeIntervalSinceNow:60*60*24*31];    	// ...to 31 days from now.
       GDataDateTime *updatedMaxTime = [GDataDateTime dateTimeWithDate:maxDate timeZone:[NSTimeZone systemTimeZone]];
       [query setMaximumStartTime:updatedMaxTime];
+      
+      [query setOrderBy:@"starttime"];
+      [query setIsAscendingOrder:YES];
+      [query setShouldExpandRecurrentEvents:YES];
 
       GDataServiceTicket *ticket = [googleCalendarService fetchCalendarQuery:query
                                                                     delegate:self
@@ -142,7 +168,7 @@
 
 - (void)deletionTicket:(GDataServiceTicket *)ticket deletedEntry:(GDataEntryCalendarEvent *)calendarEvent{
   UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Success"
-                                                  message:@"The event was deleted from the cloud."
+                                                  message:@"The event was deleted from the Google cloud."
                                                  delegate:nil
                                         cancelButtonTitle:@"Ok"
                                         otherButtonTitles:nil];
@@ -200,6 +226,8 @@
   NSMutableArray *events = [dictionary objectForKey:KEY_EVENTS];
   NSInteger count = [events count];
 
+//  GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
+// Ideally, we'd only add the "add new entry" record to the calendars that allow editing.  Not all do.
   if( self.editing )	// If we're in editing mode, we add a placeholder row for creating new items.
     count++;
 
@@ -208,46 +236,39 @@
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-  static NSString *CellIdentifier = @"Cell";
-  UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+  static NSString *CellIdentifier = @"DetailCell";
+  DetailCell *cell = (DetailCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
   if( !cell ){
-    cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
+    cell = [[[DetailCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
     cell.hidesAccessoryWhenEditing = NO;
   }
-  // Set up the cell...
-  NSDictionary *dictionary = [data objectAtIndex:indexPath.section];
-  NSMutableArray *events = [dictionary objectForKey:KEY_EVENTS];
-  GDataEntryCalendarEvent *event = [events objectAtIndex:indexPath.row];
-  cell.text = [[event title] stringValue];
-
-  return cell;
-
-/*
-  DetailCell *cell = (DetailCell *)[tableView dequeueReusableCellWithIdentifier:@"DetailCell"];
-  if( !cell ){
-    cell = [[[DetailCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell"] autorelease];
-    cell.hidesAccessoryWhenEditing = NO;
-  }
-  // The DetailCell has two modes of display - either a type/name pair or a prompt for creating a new item of a type
-  // The type derives from the section, the name from the item.
-  NSDictionary *section = [data objectAtIndex:indexPath.section];
-  if( section ){
-    NSArray *content = [section valueForKey:@"content"];
-    if( content && indexPath.row<[content count] ){
-      NSDictionary *item = (NSDictionary *)[content objectAtIndex:indexPath.row];
-      cell.type.text = [item valueForKey:@"Type"];
-      cell.name.text = [item valueForKey:@"Name"];
-      cell.promptMode = NO;
-    }else{
-      cell.prompt.text = [NSString stringWithFormat:@"Add new %@", [section valueForKey:@"name"]];
-      cell.promptMode = YES;
+  
+  cell.date.text = cell.time.text = cell.name.text = cell.addr.text = @"";
+  NSArray *events = [self eventsForIndexPath:indexPath];
+  
+  // The DetailCell has two modes of display - either the typical record or a prompt for creating a new item
+  if( indexPath.row<[events count] ){
+    GDataEntryCalendarEvent *event = [events objectAtIndex:indexPath.row];
+    GDataWhen *when = [[event objectsForExtensionClass:[GDataWhen class]] objectAtIndex:0];
+    if( when ){
+      GDataDateTime *dateTime = [when startTime];
+      NSString *str = [NSString stringWithFormat:@"%@", [dateTime date]];
+      cell.date.text = [str substringToIndex:10];
+      cell.time.text = [str substringWithRange:NSMakeRange( 11, 8)];
     }
+    cell.name.text = [[event title] stringValue];
+    // Note: An event might have multiple locations.  We're only displaying the first one.
+    GDataWhere *addr = [[event locations] objectAtIndex:0];
+    if( addr )
+      cell.addr.text = [addr stringValue];
+      
+    cell.promptMode = NO;
   }else{
-    cell.type.text = @"";
-    cell.name.text = @"";
+    cell.prompt.text = @"Create new event";
+    cell.promptMode = YES;
   }
+  
   return cell;
-*/
 }
 
 // The accessory view is on the right side of each cell. We'll use a "disclosure" indicator in editing mode,
@@ -256,22 +277,25 @@
   return self.editing?UITableViewCellAccessoryDisclosureIndicator:UITableViewCellAccessoryNone;
 }
 
+// Prevent editing of calendar events that aren't editable at the Google cloud.
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath{
+  GDataEntryCalendarEvent *event = [self eventForIndexPath:indexPath];
+  if( event )
+    return [event canEdit];
+  return YES;   // However, the "add new item" entry is "editable".
+}
+
 // The editing style for a row is the kind of button displayed to the left of the cell when in editing mode.
 - (UITableViewCellEditingStyle)tableView:(UITableView *)aTableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath{
   if( !self.editing || !indexPath )
     return UITableViewCellEditingStyleNone; // No editing style if not editing or the index path is nil.
-  // Determine the editing style based on whether the cell is a placeholder for adding content or already 
-  // existing content. Existing content can be deleted.
-  NSDictionary *dictionary = [data objectAtIndex:indexPath.section];
-  if( dictionary ){
-    NSArray *events = [dictionary valueForKey:KEY_EVENTS];
-    if( events ){
-      if( indexPath.row>=[events count] )
-        return UITableViewCellEditingStyleInsert;
-      else
-        return UITableViewCellEditingStyleDelete;
-    }
-  }
+  
+  // Determine the editing style based on whether the cell is a placeholder for
+  // adding content or already existing content. Existing content can be deleted.
+  
+  NSArray *events = [self eventsForIndexPath:indexPath];
+  if( events )
+    return indexPath.row>=[events count]?UITableViewCellEditingStyleInsert:UITableViewCellEditingStyleDelete;
   return UITableViewCellEditingStyleNone;
 }
 
@@ -279,33 +303,43 @@
 
 // Called after selection. In editing mode, this will navigate to a new view controller.
 - (void)tableView:(UITableView *)aTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-  if( self.editing ){
-    // Don't maintain the selection. We will navigate to a new view so there's no reason to keep the selection here.
-    [self.tableView deselectRowAtIndexPath:indexPath animated:NO];
-    // Go to edit view
-    NSDictionary *dictionary = [data objectAtIndex:indexPath.section];
-    if( dictionary ){
-      // Make a local reference to the editing view controller.
-      EditingViewController *controller = self.editingViewController;
-      // Pass the item being edited to the editing controller.
-      NSMutableArray *events = [dictionary valueForKey:KEY_EVENTS];
-      if( dictionary && indexPath.row<[events count] ){
-        // The row selected is one with existing content, so that content will be edited.
-        NSMutableDictionary *item = (NSMutableDictionary *)[events objectAtIndex:indexPath.row];
-        controller.editingItem = item;
-      }else{
-        // The row selected is a placeholder for adding content. The editor should create a new item.
-        controller.editingItem = nil;
-        controller.editingContent = events;
-      }
-      // Additional information for the editing controller.
-      GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
-      controller.sectionName = [[calendar title] stringValue];
-      
-      [self.navigationController pushViewController:controller animated:YES];
-    }
-  }else  // This will give the user visual feedback that the cell was selected but fade out to indicate that no action is taken.
+  if( !self.editing ){ // This will give the user visual feedback that the cell was selected but fade out to indicate that no action is taken.
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    return;
+  }
+  
+  // Don't maintain the selection. We will navigate to a new view so there's no reason to keep the selection here.
+  [self.tableView deselectRowAtIndexPath:indexPath animated:NO];
+  // Go to edit view
+  NSDictionary *dictionary = [self dictionaryForIndexPath:indexPath];
+  if( dictionary ){
+    // Make a local reference to the editing view controller.
+    EditingViewController *controller = self.editingViewController;
+    // Pass the item being edited to the editing controller.
+    GDataEntryCalendarEvent *event = [self eventForIndexPath:indexPath];
+    if( event ){  // The row selected is one with existing content, so that content will be edited.
+      NSMutableDictionary *eventDetails = [NSMutableDictionary dictionaryWithCapacity:4];
+
+      GDataWhen *when = [[event objectsForExtensionClass:[GDataWhen class]] objectAtIndex:0];
+      GDataDateTime *dateTime = [when startTime];
+      
+      [eventDetails setObject:[dateTime date] forKey:KEY_WHEN];
+      [eventDetails setObject:[[event title] stringValue] forKey:KEY_WHAT];
+      [eventDetails setObject:[[[event locations] objectAtIndex:0] stringValue] forKey:KEY_WHERE];
+
+      controller.editingItem = eventDetails;
+    }else{
+      // The row selected is a placeholder for adding content. The editor should create a new item.
+      controller.editingItem = nil;
+      controller.editingContent = [self eventsForIndexPath:indexPath];
+    }
+    
+    // Additional information for the editing controller.
+    GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
+    controller.calendarName = [[calendar title] stringValue];
+    
+    [self.navigationController pushViewController:controller animated:YES];
+  }
 }
 
 #pragma mark Editing
@@ -335,10 +369,9 @@
 // Update the data model according to edit actions delete or insert.
 - (void)tableView:(UITableView *)aTableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
                                              forRowAtIndexPath:(NSIndexPath *)indexPath{
-  if( editingStyle==UITableViewCellEditingStyleDelete ){
-    NSDictionary *dictionary = [data objectAtIndex:indexPath.section];
-    if( dictionary ){
-      NSMutableArray *events = [dictionary valueForKey:KEY_EVENTS];
+  switch( editingStyle ){
+    case UITableViewCellEditingStyleDelete:{
+      NSMutableArray *events = [self eventsForIndexPath:indexPath];
       if( events && indexPath.row<[events count] ){
         GDataEntryCalendarEvent *event = [events objectAtIndex:indexPath.row];
         if( event ){
@@ -348,10 +381,9 @@
           [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];      
         }
       }
-    }
-  }else
-    if( editingStyle==UITableViewCellEditingStyleInsert ){
-      NSDictionary *dictionary = [data objectAtIndex:indexPath.section];
+    }break;
+    case UITableViewCellEditingStyleInsert:{
+      NSDictionary *dictionary = [self dictionaryForIndexPath:indexPath];
       if( dictionary ){
         // Make a local reference to the editing view controller.
         EditingViewController *controller = self.editingViewController;
@@ -362,11 +394,12 @@
         controller.editingContent = events;
         
         GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
-        controller.sectionName = [[calendar title] stringValue];
+        controller.calendarName = [[calendar title] stringValue];
         
         [self.navigationController pushViewController:controller animated:YES];
-      }
-    }
+      }      
+    }break;
+  }
 }
 
 @end
