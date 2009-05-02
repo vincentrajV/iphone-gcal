@@ -7,23 +7,26 @@
 //
 #import <UIKit/UIKit.h>
 
-@class EditableCell;
+#define KEY_WHAT @"what"
+#define KEY_WHEN @"when"
+#define KEY_WHERE @"where"
 
-@interface EditingViewController : UITableViewController{
+@interface EditingViewController : UIViewController <UITextFieldDelegate>{
   NSMutableDictionary *editingItem;
   NSDictionary *editingItemCopy;
-  UITextField *nameField;
-  EditableCell *nameCell;
+  IBOutlet UITextField *what;
+  IBOutlet UIDatePicker *when;
+  IBOutlet UITextField *where;
   BOOL newItem;
   NSMutableArray *editingContent;
-  NSString *sectionName;
+  NSString *calendarName;
   UIView *headerView;
 }
 
 @property (nonatomic, retain) NSMutableDictionary *editingItem;
 @property (nonatomic, copy) NSDictionary *editingItemCopy;
 @property (nonatomic, retain) NSMutableArray *editingContent;
-@property (nonatomic, copy) NSString *sectionName;
+@property (nonatomic, copy) NSString *calendarName;
 @property (nonatomic, retain) UIView *headerView;
 
 @end
