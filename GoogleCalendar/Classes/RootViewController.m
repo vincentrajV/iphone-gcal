@@ -106,15 +106,20 @@
     [data addObject:dictionary];
 
     [dictionary setObject:calendar forKey:KEY_CALENDAR];
+    if( [calendar ACLLink] )  // We can determine whether the calendar is under user's control by the existence of its ACL link.
+      [dictionary setObject:KEY_EDITABLE forKey:KEY_EDITABLE];
+    
     NSURL *feedURL = [[calendar alternateLink] URL];
     if( feedURL ){
       GDataQueryCalendar* query = [GDataQueryCalendar calendarQueryWithFeedURL:feedURL];
       
-      NSDate *minDate = [NSDate dateWithTimeIntervalSinceNow:-60*60*24*15];  // From 15 days ago...
+      // Currently, the app just shows calendar entries from 15 days ago to 31 days from now.
+      // Ideally, we would instead use similar controls found in Google Calendar web interface, or even iCal's UI.
+      NSDate *minDate = [NSDate dateWithTimeIntervalSinceNow:-PERIOD_15_DAYS];  // From 15 days ago...
       GDataDateTime *updatedMinTime = [GDataDateTime dateTimeWithDate:minDate timeZone:[NSTimeZone systemTimeZone]];
       [query setMinimumStartTime:updatedMinTime];
 
-      NSDate *maxDate = [NSDate dateWithTimeIntervalSinceNow:60*60*24*31];    	// ...to 31 days from now.
+      NSDate *maxDate = [NSDate dateWithTimeIntervalSinceNow:PERIOD_31_DAYS];  // ...to 31 days from now.
       GDataDateTime *updatedMaxTime = [GDataDateTime dateTimeWithDate:maxDate timeZone:[NSTimeZone systemTimeZone]];
       [query setMaximumStartTime:updatedMaxTime];
       
@@ -226,9 +231,9 @@
   NSMutableArray *events = [dictionary objectForKey:KEY_EVENTS];
   NSInteger count = [events count];
 
-//  GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
-// Ideally, we'd only add the "add new entry" record to the calendars that allow editing.  Not all do.
-  if( self.editing )	// If we're in editing mode, we add a placeholder row for creating new items.
+  // If we're in editing mode, we add a placeholder row for creating new items.
+  // However, only add it to the calendars that allow editing.  Not all do.
+  if( self.editing && [dictionary objectForKey:KEY_EDITABLE] )	
     count++;
 
   return count;
@@ -274,7 +279,9 @@
 // The accessory view is on the right side of each cell. We'll use a "disclosure" indicator in editing mode,
 // to indicate to the user that selecting the row will navigate to a new view where details can be edited.
 - (UITableViewCellAccessoryType)tableView:(UITableView *)aTableView accessoryTypeForRowWithIndexPath:(NSIndexPath *)indexPath{
-  return self.editing?UITableViewCellAccessoryDisclosureIndicator:UITableViewCellAccessoryNone;
+  if( self.editing && [[self dictionaryForIndexPath:indexPath] objectForKey:KEY_EDITABLE] )
+    return UITableViewCellAccessoryDisclosureIndicator;
+  return UITableViewCellAccessoryNone;
 }
 
 // Prevent editing of calendar events that aren't editable at the Google cloud.
@@ -303,7 +310,7 @@
 
 // Called after selection. In editing mode, this will navigate to a new view controller.
 - (void)tableView:(UITableView *)aTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-  if( !self.editing ){ // This will give the user visual feedback that the cell was selected but fade out to indicate that no action is taken.
+  if( !self.editing || ![[self dictionaryForIndexPath:indexPath] objectForKey:KEY_EDITABLE] ){ // This will give the user visual feedback that the cell was selected but fade out to indicate that no action is taken.
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
     return;
   }
@@ -352,8 +359,10 @@
   NSMutableArray *indexPaths = [[NSMutableArray alloc] init];
   for( int section=0; section<[data count]; section++ ){
     NSMutableDictionary *dictionary = [data objectAtIndex:section];
-    NSArray *events = [dictionary objectForKey:KEY_EVENTS];
-    [indexPaths addObject:[NSIndexPath indexPathForRow:[events count] inSection:section]];
+    if( [dictionary objectForKey:KEY_EDITABLE] ){
+      NSArray *events = [dictionary objectForKey:KEY_EVENTS];
+      [indexPaths addObject:[NSIndexPath indexPathForRow:[events count] inSection:section]];
+    }
   }
   
   [self.tableView beginUpdates];
