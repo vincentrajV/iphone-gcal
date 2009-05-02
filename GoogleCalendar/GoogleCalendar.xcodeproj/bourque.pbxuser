@@ -131,8 +131,13 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 262930592;
-			PBXWorkspaceStateSaveDate = 262930592;
+			PBXPerProjectTemplateStateSaveDate = 262931040;
+			PBXWorkspaceStateSaveDate = 262931040;
+		};
+		perUserProjectItems = {
+			307DD8A10FAC01FD004783CC = 307DD8A10FAC01FD004783CC /* PBXTextBookmark */;
+			30AD006B0FAC024B003C99DE = 30AD006B0FAC024B003C99DE /* PBXTextBookmark */;
+			30E1E4DB0FAC027200D52061 /* PBXTextBookmark */ = 30E1E4DB0FAC027200D52061 /* PBXTextBookmark */;
 		};
 		sourceControlManager = 30CEF1E10FA52B81001E003C /* Source Control */;
 		userBuildSettings = {
@@ -144,6 +149,45 @@
 			sepNavSelRange = "{350, 0}";
 			sepNavVisRange = "{0, 350}";
 		};
+	};
+	307DD8A10FAC01FD004783CC /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 307DD8A20FAC01FD004783CC /* bourque.pbxuser */;
+		name = "bourque.pbxuser: 478";
+		rLen = 0;
+		rLoc = 13510;
+		rType = 0;
+		vrLen = 0;
+		vrLoc = 0;
+	};
+	307DD8A20FAC01FD004783CC /* bourque.pbxuser */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = text;
+		name = bourque.pbxuser;
+		path = "/Users/bourque/Documents/iPhone projects/GoogleCalendar/GoogleCalendar.xcodeproj/bourque.pbxuser";
+		sourceTree = "<absolute>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {974, 6916}}";
+			sepNavSelRange = "{13770, 0}";
+			sepNavVisRange = "{0, 0}";
+		};
+	};
+	30AD006B0FAC024B003C99DE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 30AD006C0FAC024B003C99DE /* bourque.pbxuser */;
+		name = "bourque.pbxuser: 511";
+		rLen = 0;
+		rLoc = 13770;
+		rType = 0;
+		vrLen = 0;
+		vrLoc = 0;
+	};
+	30AD006C0FAC024B003C99DE /* bourque.pbxuser */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = text;
+		name = bourque.pbxuser;
+		path = "/Users/bourque/Documents/iPhone projects/GoogleCalendar/GoogleCalendar.xcodeproj/bourque.pbxuser";
+		sourceTree = "<absolute>";
 	};
 	30AFC8AE0FA80FEB00220592 /* EditingViewController.h */ = {
 		uiCtxt = {
@@ -359,6 +403,16 @@
 			sepNavSelRange = "{7172, 291}";
 			sepNavVisRange = "{6757, 2580}";
 		};
+	};
+	30E1E4DB0FAC027200D52061 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 307DD8A20FAC01FD004783CC /* bourque.pbxuser */;
+		name = "bourque.pbxuser: 488";
+		rLen = 0;
+		rLoc = 13770;
+		rType = 0;
+		vrLen = 0;
+		vrLoc = 0;
 	};
 	30E7BEF30FAB50ED00E08E92 /* DetailCell.h */ = {
 		uiCtxt = {
