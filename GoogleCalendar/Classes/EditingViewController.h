@@ -6,27 +6,24 @@
 //  Copyright Dan Bourque 2009. All rights reserved.
 //
 #import <UIKit/UIKit.h>
-
-#define KEY_WHAT @"what"
-#define KEY_WHEN @"when"
-#define KEY_WHERE @"where"
+#import "GDataCalendar.h"
+#import "RootViewController.h"
 
 @interface EditingViewController : UIViewController <UITextFieldDelegate>{
-  NSMutableDictionary *editingItem;
-  NSDictionary *editingItemCopy;
+  RootViewController *rootViewController;
+  GDataEntryCalendarEvent *editingEvent;
+  NSDictionary *dictionary;
+  BOOL newItem;
   IBOutlet UITextField *what;
   IBOutlet UIDatePicker *when;
   IBOutlet UITextField *where;
-  BOOL newItem;
-  NSMutableArray *editingContent;
   NSString *calendarName;
   UIView *headerView;
 }
 
-@property (nonatomic, retain) NSMutableDictionary *editingItem;
-@property (nonatomic, copy) NSDictionary *editingItemCopy;
-@property (nonatomic, retain) NSMutableArray *editingContent;
-@property (nonatomic, copy) NSString *calendarName;
-@property (nonatomic, retain) UIView *headerView;
+@property (nonatomic, retain) RootViewController *rootViewController;
+@property (nonatomic, retain) GDataEntryCalendarEvent *editingEvent;
+@property (nonatomic, retain) NSDictionary *dictionary;
+@property (nonatomic, retain) NSString *calendarName;
 
 @end
