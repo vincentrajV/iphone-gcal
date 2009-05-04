@@ -4,4 +4,4 @@
 
 Before you're able to compile, you'll need to add the Google Data API's objective-c client libraries, and change the bundle identifier to match your iPhone developer license's domain.
 
-<wiki:video url="http://www.youtube.com/watch?v=it_9H0GxRNI"/>
+<wiki:video url="http://www.youtube.com/watch?v=it_9H0GxRNI" width="640" height="480"/>
