@@ -1,0 +1,10 @@
+#summary Setting up the XCode project
+
+= Introduction =
+
+Before you're able to compile, you'll need to add the Google Data API's objective-c client libraries, and change the product to match your iPhone developer license's domain.
+
+= Details =
+
+under construction...
+In the meantime, check out: http://code.google.com/p/gdata-objectivec-client/wiki/GDataObjCIntroduction#Development_with_the_iPhone_SDK
