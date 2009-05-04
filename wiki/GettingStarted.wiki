@@ -1,4 +1,5 @@
 #summary Setting up the XCode project for your development environment
+#labels Featured
 
 = Introduction =
 
