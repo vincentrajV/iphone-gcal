@@ -6,31 +6,34 @@
 //  Copyright Dan Bourque 2009. All rights reserved.
 //
 #import "EditingViewController.h"
+#import "RootViewController.h"
 
 @implementation EditingViewController
 
-@synthesize editingItem, editingItemCopy, editingContent, calendarName, headerView;
+@synthesize rootViewController, editingEvent, dictionary, calendarName;
 
 - (void)viewWillAppear:(BOOL)animated{
   self.title = calendarName;
   // If the editing item is nil, that indicates a new item should be created
-  if( !editingItem ){
-    self.editingItem = [NSMutableDictionary dictionaryWithObjectsAndKeys:[NSDate date], KEY_WHEN, @"", KEY_WHAT, @"", KEY_WHERE, nil];
-    // Rather than immediately add the new item to the content array, set a flag.
-    // When the user saves, add the item then; if the user cancels, no action is needed.
+  if( !editingEvent ){
+    what.text = @"";
+    where.text = @"";
+    when.date = [NSDate dateWithTimeIntervalSinceNow:60*30];  // Defaults to 30 minutes from now...
     newItem = YES;
+  }else{
+    GDataWhen *eventWhen = [[editingEvent objectsForExtensionClass:[GDataWhen class]] objectAtIndex:0];
+    what.text = [[editingEvent title] stringValue];
+    where.text = [[[editingEvent locations] objectAtIndex:0] stringValue];
+    when.date = [[eventWhen startTime] date];
+    newItem = NO;
   }
-  
-  what.text = [editingItem valueForKey:KEY_WHAT];
-  where.text = [editingItem valueForKey:KEY_WHERE];
-  when.date = [editingItem valueForKey:KEY_WHEN];
 }
 
 - (void)viewDidLoad{
  	self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
   // use an empty view to position the cells in the vertical center of
   // the portion of the view not covered by the keyboard
-  self.headerView = [[[UIView alloc] initWithFrame:CGRectMake( 0, 0, 5, 100 )] autorelease];
+  headerView = [[[UIView alloc] initWithFrame:CGRectMake( 0, 0, 5, 100 )] autorelease];
   
   self.navigationItem.leftBarButtonItem = [[UIBarButtonItem  alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                          target:self
@@ -45,43 +48,46 @@
 	where.delegate = self;  
 }
 
+// This class was declared as the 'what' and 'where' fields' delegate, so this method is
+// called when the 'done' key is pressed.  We dismiss the keyboard, but don't return from the screen.
 - (BOOL)textFieldShouldReturn:(UITextField *)textField{
 	[textField resignFirstResponder];
 	return NO;
 }
 
-// When we set the editing item, we also make a copy in case edits
-// are made and then canceled - then we can restore from the copy.
-- (void)setEditingItem:(NSMutableDictionary *)anItem{
-  [editingItem release];
-  editingItem = [anItem retain];
-  self.editingItemCopy = editingItem;
-}
-
 - (IBAction)cancel{
-  // cancel edits, restore all values from the copy
   newItem = NO;
-  [editingItem setValuesForKeysWithDictionary:editingItemCopy];
   [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (IBAction)save{
-  // save edits to the editing item and add new item to the content.
-  [editingItem setValue:what.text forKey:KEY_WHAT];
-  [editingItem setValue:where.text forKey:KEY_WHERE];
-  [editingItem setValue:when.date forKey:KEY_WHEN];
-
+  GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
+  GDataDateTime *time = [GDataDateTime dateTimeWithDate:when.date timeZone:when.timeZone];
+  
   if( newItem ){
-    [editingContent addObject:editingItem];
+    GDataEntryCalendarEvent *newEntry = [GDataEntryCalendarEvent calendarEvent];
+    [newEntry setTitleWithString:what.text];
+    [newEntry addLocation:[GDataWhere whereWithString:where.text]];
+    [newEntry addTime:[GDataWhen whenWithStartTime:time endTime:time]];
+    [rootViewController insertCalendarEvent:newEntry toCalendar:calendar];
     newItem = NO;
+  }else{
+    [editingEvent setTitleWithString:what.text];
+    [editingEvent setLocations:[NSArray arrayWithObject:[GDataWhere whereWithString:where.text]]];
+//    [editingEvent setTimes:[NSArray arrayWithObject:[GDataWhen whenWithStartTime:time endTime:time]]];
+    [rootViewController updateCalendarEvent:editingEvent toCalendar:calendar];
   }
+
   [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)dealloc{
-  [editingItem release];
-  [editingItemCopy release];
-  [editingContent release];
+  [rootViewController release];
+  [editingEvent release];
+  [dictionary release];
+  [what release];
+  [when release];
+  [where release];
   [calendarName release];
   [headerView release];
   [super dealloc];
