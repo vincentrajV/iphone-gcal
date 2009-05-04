@@ -2,7 +2,7 @@
 
 = Introduction =
 
-Before you're able to compile, you'll need to add the Google Data API's objective-c client libraries, and change the product to match your iPhone developer license's domain.
+Before you're able to compile, you'll need to add the Google Data API's objective-c client libraries, and change the bundle identifier to match your iPhone developer license's domain.
 
 = Details =
 
