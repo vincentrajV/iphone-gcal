@@ -13,13 +13,13 @@
 
 @implementation RootViewController
 
-@synthesize navigationBar, data, editingViewController, statusMessage;
+@synthesize googleCalendarService;
 
 - (id)initWithCoder:(NSCoder *)aCoder{
   if( self=[super initWithCoder:aCoder] ){
     googleCalendarService = [[GDataServiceGoogleCalendar alloc] init];
-    [googleCalendarService setServiceShouldFollowNextLinks:YES];
     [googleCalendarService setUserAgent:@"DanBourque-GTUGDemo-1.0"];
+    data = [[NSMutableArray alloc] init];
   }
   return self;
 }
@@ -42,11 +42,8 @@
 }
 
 - (EditingViewController *)editingViewController{
-  if( !editingViewController ){  // Lazily Instantiate the editing view controller if necessary.
-    EditingViewController *controller = [[EditingViewController alloc] initWithNibName:@"EditingView" bundle:nil];
-    self.editingViewController = controller;
-    [controller release];
-  }
+  if( !editingViewController )  // Lazily Instantiate the editing view controller if necessary.
+    editingViewController = [[EditingViewController alloc] initWithNibName:@"EditingView" bundle:nil];
   return editingViewController;
 }
 
@@ -84,7 +81,7 @@
 - (void)refresh{
   // Note: The next call returns a ticket, that could be used to cancel the current request if the user chose to abort early.
   // However since I didn't expose such a capability to the user, I don't even assign it to a variable.
-  statusMessage = @"Please wait...";
+  [data removeAllObjects];
   [googleCalendarService fetchCalendarFeedForUsername:[AppDelegate appDelegate].username
                                              delegate:self
                                     didFinishSelector:@selector( calendarsTicket:finishedWithFeed: )
@@ -92,11 +89,6 @@
 }
 
 - (void)calendarsTicket:(GDataServiceTicket *)ticket finishedWithFeed:(GDataFeedCalendar *)feed{
-  if( !data )		// Just in time initialization
-    data = [[NSMutableArray alloc] init];
-
-  [data removeAllObjects];
-
   int count = [[feed entries] count];
   for( int i=0; i<count; i++ ){
     GDataEntryCalendar *calendar = [[feed entries] objectAtIndex:i];
@@ -106,6 +98,7 @@
     [data addObject:dictionary];
 
     [dictionary setObject:calendar forKey:KEY_CALENDAR];
+    [dictionary setObject:[[NSMutableArray alloc] init] forKey:KEY_EVENTS];
     if( [calendar ACLLink] )  // We can determine whether the calendar is under user's control by the existence of its ACL link.
       [dictionary setObject:KEY_EDITABLE forKey:KEY_EDITABLE];
     
@@ -115,15 +108,15 @@
       
       // Currently, the app just shows calendar entries from 15 days ago to 31 days from now.
       // Ideally, we would instead use similar controls found in Google Calendar web interface, or even iCal's UI.
-      NSDate *minDate = [NSDate dateWithTimeIntervalSinceNow:-PERIOD_15_DAYS];  // From 15 days ago...
+      NSDate *minDate = [NSDate date];  // From right now...
       GDataDateTime *updatedMinTime = [GDataDateTime dateTimeWithDate:minDate timeZone:[NSTimeZone systemTimeZone]];
       [query setMinimumStartTime:updatedMinTime];
 
-      NSDate *maxDate = [NSDate dateWithTimeIntervalSinceNow:PERIOD_31_DAYS];  // ...to 31 days from now.
+      NSDate *maxDate = [NSDate dateWithTimeIntervalSinceNow:60*60*24*90];  // ...to 90 days from now.
       GDataDateTime *updatedMaxTime = [GDataDateTime dateTimeWithDate:maxDate timeZone:[NSTimeZone systemTimeZone]];
       [query setMaximumStartTime:updatedMaxTime];
       
-      [query setOrderBy:@"starttime"];
+      [query setOrderBy:@"starttime"];  // http://code.google.com/apis/calendar/docs/2.0/reference.html#Parameters
       [query setIsAscendingOrder:YES];
       [query setShouldExpandRecurrentEvents:YES];
 
@@ -131,6 +124,7 @@
                                                                     delegate:self
                                                            didFinishSelector:@selector( eventsTicket:finishedWithEntries: )
                                                              didFailSelector:@selector( ticket:failedWithError: )];
+      // I add the service ticket to the dictionary to make it easy to find which calendar each reply belongs to.
       [dictionary setObject:ticket forKey:KEY_TICKET];
     }
   }
@@ -154,31 +148,51 @@
 
   int count = [[feed entries] count];
 
-  NSMutableArray *events = [[NSMutableArray alloc] init];
-  [dictionary setObject:events forKey:KEY_EVENTS];
+  NSMutableArray *events = [dictionary objectForKey:KEY_EVENTS];
   for( int i=0; i<count; i++ ){
     GDataEntryCalendarEvent *event = [[feed entries] objectAtIndex:i];
     [events addObject:event];
   }
 
   [self.tableView reloadData];
+  
+  NSURL *nextURL = [[feed nextLink] URL];
+  if( nextURL ){
+    NSLog( @"There are more events...  Fetching again." );
+    GDataServiceTicket *ticket = [googleCalendarService fetchCalendarEventFeedWithURL:nextURL
+                                                                  delegate:self
+                                                         didFinishSelector:@selector( eventsTicket:finishedWithEntries: )   // Right back here...
+                                                           didFailSelector:@selector( ticket:failedWithError: )];
+    // Update the ticket in the dictionary for the next batch.
+    [dictionary setObject:ticket forKey:KEY_TICKET];
+  }
 }
 
 - (void)deleteCalendarEvent:(GDataEntryCalendarEvent *)calendarEvent{
   [googleCalendarService deleteCalendarEventEntry:calendarEvent
                                          delegate:self
-                                didFinishSelector:@selector( deletionTicket:deletedEntry: )
+                                didFinishSelector:nil
                                   didFailSelector:@selector( ticket:failedWithError: )];
 }
 
-- (void)deletionTicket:(GDataServiceTicket *)ticket deletedEntry:(GDataEntryCalendarEvent *)calendarEvent{
-  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Success"
-                                                  message:@"The event was deleted from the Google cloud."
-                                                 delegate:nil
-                                        cancelButtonTitle:@"Ok"
-                                        otherButtonTitles:nil];
-  [alert show];
-  [alert release];
+- (void)insertCalendarEvent:(GDataEntryCalendarEvent *)newEvent toCalendar:(GDataEntryCalendar *)calendar{
+  [googleCalendarService fetchCalendarEventByInsertingEntry:newEvent
+                                                 forFeedURL:[[calendar alternateLink] URL]
+                                                   delegate:self
+                                          didFinishSelector:@selector( insertTicket:finishedWithEntry: )
+                                            didFailSelector:@selector( ticket:failedWithError: )];
+}
+
+- (void)insertTicket:(GDataServiceTicket *)ticket finishedWithEntry:(GDataEntryCalendarEvent *)entry{
+  [self refresh];
+}
+
+- (void)updateCalendarEvent:(GDataEntryCalendarEvent *)newEvent toCalendar:(GDataEntryCalendar *)calendar{
+  [googleCalendarService fetchCalendarEventEntryByUpdatingEntry:newEvent
+                                                    forEntryURL:[[calendar alternateLink] URL]
+                                                       delegate:self
+                                              didFinishSelector:nil
+                                                didFailSelector:@selector( ticket:failedWithError: )];
 }
 
 - (void)ticket:(GDataServiceTicket *)ticket failedWithError:(NSError *)error{
@@ -192,7 +206,6 @@
     title = @"Unknown Error";
     msg = [error localizedDescription];
   }
-  statusMessage = title;  // Update the status message shown to the user.
 
   UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title
                                                   message:msg
@@ -208,34 +221,33 @@
 #pragma mark Table Content and Appearance
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
-  if( !data )		// The data hasn't come back yet.  Allow the "Please wait..." message to show up.
-    return 1;
-  
-  return [data count];
+  return MAX( [data count], 1 );
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section{
-  if( !data )
-    return statusMessage;
-  
-  NSMutableDictionary *dictionary = [data objectAtIndex:section];
-  GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
-  return [[calendar title] stringValue];
+  if( section<[data count] ){
+    NSMutableDictionary *dictionary = [data objectAtIndex:section];
+    GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
+    NSMutableArray *events = [dictionary objectForKey:KEY_EVENTS];
+    int count = [events count];
+    return [NSString stringWithFormat:@"%@ (%i)", [[calendar title] stringValue], count];
+  }
+  return @"Please wait...";
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-  if( !data )
+  if( section>=[data count] )
     return 0;
-
+  
   NSMutableDictionary *dictionary = [data objectAtIndex:section];
   NSMutableArray *events = [dictionary objectForKey:KEY_EVENTS];
-  NSInteger count = [events count];
-
+  int count = [events count];
+  
   // If we're in editing mode, we add a placeholder row for creating new items.
   // However, only add it to the calendars that allow editing.  Not all do.
   if( self.editing && [dictionary objectForKey:KEY_EDITABLE] )	
     count++;
-
+  
   return count;
 }
 
@@ -322,29 +334,13 @@
   if( dictionary ){
     // Make a local reference to the editing view controller.
     EditingViewController *controller = self.editingViewController;
+    controller.dictionary = dictionary;
     // Pass the item being edited to the editing controller.
-    GDataEntryCalendarEvent *event = [self eventForIndexPath:indexPath];
-    if( event ){  // The row selected is one with existing content, so that content will be edited.
-      NSMutableDictionary *eventDetails = [NSMutableDictionary dictionaryWithCapacity:4];
-
-      GDataWhen *when = [[event objectsForExtensionClass:[GDataWhen class]] objectAtIndex:0];
-      GDataDateTime *dateTime = [when startTime];
-      
-      [eventDetails setObject:[dateTime date] forKey:KEY_WHEN];
-      [eventDetails setObject:[[event title] stringValue] forKey:KEY_WHAT];
-      [eventDetails setObject:[[[event locations] objectAtIndex:0] stringValue] forKey:KEY_WHERE];
-
-      controller.editingItem = eventDetails;
-    }else{
-      // The row selected is a placeholder for adding content. The editor should create a new item.
-      controller.editingItem = nil;
-      controller.editingContent = [self eventsForIndexPath:indexPath];
-    }
-    
-    // Additional information for the editing controller.
+    // If the user clicked on the "add new entry" record, this will be nil, and the controller will create a new one.
+    controller.editingEvent = [self eventForIndexPath:indexPath]; 
+    controller.rootViewController = self;
     GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
     controller.calendarName = [[calendar title] stringValue];
-    
     [self.navigationController pushViewController:controller animated:YES];
   }
 }
@@ -396,15 +392,13 @@
       if( dictionary ){
         // Make a local reference to the editing view controller.
         EditingViewController *controller = self.editingViewController;
-        NSMutableArray *events = [dictionary valueForKey:KEY_EVENTS];
         // A "nil" editingItem indicates the editor should create a new item.
-        controller.editingItem = nil;
-        // The group to which the new item should be added.
-        controller.editingContent = events;
-        
+        controller.editingEvent = nil;
+        // The calendar's dictionary to which the new item should be added.
+        controller.dictionary = dictionary;
+        controller.rootViewController = self;
         GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
         controller.calendarName = [[calendar title] stringValue];
-        
         [self.navigationController pushViewController:controller animated:YES];
       }      
     }break;
