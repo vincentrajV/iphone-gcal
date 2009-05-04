@@ -7,3 +7,4 @@ Before you're able to compile, you'll need to add the Google Data API's objectiv
 = Details =
 
 Rather than read a boring wiki page, [http://www.youtube.com/watch?v=it_9H0GxRNI watch this video tutorial].
+<wiki:video url="http://www.youtube.com/watch?v=it_9H0GxRNI"/>
