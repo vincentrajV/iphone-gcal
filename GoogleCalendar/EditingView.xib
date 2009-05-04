@@ -39,7 +39,7 @@
 					<object class="IBUIDatePicker" id="388443419">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{0, 220}, {320, 216}}</string>
+						<string key="NSFrame">{{0, 200}, {320, 216}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
@@ -100,7 +100,7 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA</b
 					<object class="IBUITextView" id="529481606">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{20, 98}, {280, 114}}</string>
+						<string key="NSFrame">{{20, 98}, {280, 94}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
@@ -110,9 +110,9 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA</b
 						<bool key="IBUICanCancelContentTouches">NO</bool>
 						<bool key="IBUIBouncesZoom">NO</bool>
 						<bool key="IBUIEditable">NO</bool>
-						<string type="base64-UTF8" key="IBUIText">KFRoZSB0aW1lIGNvbnRyb2wgYmVsb3cgb25seSBjb250cm9scyB0aGUgZXZlbnQncyBTdGFydCB0aW1l
-LiAgU3VwcG9ydCBmb3IgRW5kIHRpbWUsIEFsbC1EYXkgZXZlbnRzLCBhbmQgcmVtaW5kZXJzIGNvdWxk
-IGJlIGltcGxlbWVudGVkIGFzIGEgbXVsdGktdGllciBlZGl0b3IuKQ</string>
+						<string type="base64-UTF8" key="IBUIText">KFRoZSBjb250cm9sIGJlbG93IG9ubHkgY29udHJvbHMgdGhlIGV2ZW50J3MgU3RhcnQgdGltZS4gIENv
+bnRyb2xzIGZvciBFbmQgdGltZSwgQWxsLURheSwgcmVtaW5kZXJzIGV0Yy4gc3RpbGwgbmVlZCB0byBi
+ZSBhZGRlZC4pA</string>
 						<int key="IBUITextAlignment">1</int>
 					</object>
 					<object class="IBUITextField" id="156247611">
@@ -138,13 +138,14 @@ IGJlIGltcGxlbWVudGVkIGFzIGEgbXVsdGktdGllciBlZGl0b3IuKQ</string>
 						</object>
 					</object>
 				</object>
-				<string key="NSFrameSize">{320, 436}</string>
+				<string key="NSFrameSize">{320, 416}</string>
 				<reference key="NSSuperview"/>
 				<object class="NSColor" key="IBUIBackgroundColor">
 					<int key="NSColorSpace">3</int>
 					<bytes key="NSWhite">MQA</bytes>
 					<reference key="NSCustomColorSpace" ref="154431083"/>
 				</object>
+				<object class="IBUISimulatedStatusBarMetrics" key="IBUISimulatedStatusBarMetrics"/>
 				<object class="IBUISimulatedNavigationBarMetrics" key="IBUISimulatedTopBarMetrics">
 					<bool key="IBUIPrompted">NO</bool>
 				</object>
@@ -203,9 +204,9 @@ IGJlIGltcGxlbWVudGVkIGFzIGEgbXVsdGktdGllciBlZGl0b3IuKQ</string>
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="730094656"/>
-							<reference ref="388443419"/>
 							<reference ref="156247611"/>
 							<reference ref="529481606"/>
+							<reference ref="388443419"/>
 						</object>
 						<reference key="parent" ref="360949347"/>
 					</object>
@@ -259,7 +260,7 @@ IGJlIGltcGxlbWVudGVkIGFzIGEgbXVsdGktdGllciBlZGl0b3IuKQ</string>
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<string>EditingViewController</string>
 					<string>UIResponder</string>
-					<string>{{350, 17}, {320, 480}}</string>
+					<string>{{336, 148}, {320, 480}}</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
@@ -318,7 +319,7 @@ IGJlIGltcGxlbWVudGVkIGFzIGEgbXVsdGktdGllciBlZGl0b3IuKQ</string>
 			</object>
 		</object>
 		<int key="IBDocument.localizationMode">0</int>
-		<string key="IBDocument.LastKnownRelativeProjectPath">../GoogleCalendar.xcodeproj</string>
+		<string key="IBDocument.LastKnownRelativeProjectPath">GoogleCalendar.xcodeproj</string>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 	</data>
 </archive>
