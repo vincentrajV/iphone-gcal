@@ -1,4 +1,4 @@
-#summary Setting up the XCode project
+#summary Setting up the XCode project for your development environment
 
 = Introduction =
 
@@ -6,5 +6,4 @@ Before you're able to compile, you'll need to add the Google Data API's objectiv
 
 = Details =
 
-under construction...
-In the meantime, check out: http://code.google.com/p/gdata-objectivec-client/wiki/GDataObjCIntroduction#Development_with_the_iPhone_SDK
+Rather than read a boring wiki page, watch this video tutorial: http://www.youtube.com/watch?v=it_9H0GxRNI
