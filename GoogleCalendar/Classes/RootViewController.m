@@ -264,10 +264,9 @@
     GDataEntryCalendarEvent *event = [events objectAtIndex:indexPath.row];
     GDataWhen *when = [[event objectsForExtensionClass:[GDataWhen class]] objectAtIndex:0];
     if( when ){
-      GDataDateTime *dateTime = [when startTime];
-      NSString *str = [NSString stringWithFormat:@"%@", [dateTime date]];
-      cell.date.text = [str substringToIndex:10];
-      cell.time.text = [str substringWithRange:NSMakeRange( 11, 8)];
+      NSDate *date = [[when startTime] date];
+      cell.date.text = [date descriptionWithCalendarFormat:@"%b %1d" timeZone:nil locale:nil];
+      cell.time.text = [date descriptionWithCalendarFormat:@"%1I:%M %p" timeZone:nil locale:nil];
     }
     cell.name.text = [[event title] stringValue];
     // Note: An event might have multiple locations.  We're only displaying the first one.
