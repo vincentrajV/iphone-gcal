@@ -19,6 +19,8 @@
   if( self=[super initWithCoder:aCoder] ){
     googleCalendarService = [[GDataServiceGoogleCalendar alloc] init];
     [googleCalendarService setUserAgent:@"DanBourque-GTUGDemo-1.0"];
+    // We'll follow the links ourselves, so that we can show progress to our users between each batch.
+    [googleCalendarService setServiceShouldFollowNextLinks:NO];
     data = [[NSMutableArray alloc] init];
   }
   return self;
@@ -109,13 +111,10 @@
       // Currently, the app just shows calendar entries from 15 days ago to 31 days from now.
       // Ideally, we would instead use similar controls found in Google Calendar web interface, or even iCal's UI.
       NSDate *minDate = [NSDate date];  // From right now...
-      GDataDateTime *updatedMinTime = [GDataDateTime dateTimeWithDate:minDate timeZone:[NSTimeZone systemTimeZone]];
-      [query setMinimumStartTime:updatedMinTime];
-
       NSDate *maxDate = [NSDate dateWithTimeIntervalSinceNow:60*60*24*90];  // ...to 90 days from now.
-      GDataDateTime *updatedMaxTime = [GDataDateTime dateTimeWithDate:maxDate timeZone:[NSTimeZone systemTimeZone]];
-      [query setMaximumStartTime:updatedMaxTime];
       
+      [query setMinimumStartTime:[GDataDateTime dateTimeWithDate:minDate timeZone:[NSTimeZone systemTimeZone]]];
+      [query setMaximumStartTime:[GDataDateTime dateTimeWithDate:maxDate timeZone:[NSTimeZone systemTimeZone]]];
       [query setOrderBy:@"starttime"];  // http://code.google.com/apis/calendar/docs/2.0/reference.html#Parameters
       [query setIsAscendingOrder:YES];
       [query setShouldExpandRecurrentEvents:YES];
@@ -149,34 +148,31 @@
   int count = [[feed entries] count];
 
   NSMutableArray *events = [dictionary objectForKey:KEY_EVENTS];
-  for( int i=0; i<count; i++ ){
-    GDataEntryCalendarEvent *event = [[feed entries] objectAtIndex:i];
-    [events addObject:event];
-  }
+  for( int i=0; i<count; i++ )
+    [events addObject:[[feed entries] objectAtIndex:i]];
 
   [self.tableView reloadData];
   
   NSURL *nextURL = [[feed nextLink] URL];
-  if( nextURL ){
-    NSLog( @"There are more events...  Fetching again." );
-    GDataServiceTicket *ticket = [googleCalendarService fetchCalendarEventFeedWithURL:nextURL
-                                                                  delegate:self
-                                                         didFinishSelector:@selector( eventsTicket:finishedWithEntries: )   // Right back here...
-                                                           didFailSelector:@selector( ticket:failedWithError: )];
+  if( nextURL ){    // There are more events in the calendar...  Fetch again.
+    GDataServiceTicket *newTicket = [googleCalendarService fetchCalendarEventFeedWithURL:nextURL
+                                                                                delegate:self
+                                                                       didFinishSelector:@selector( eventsTicket:finishedWithEntries: )   // Right back here...
+                                                                         didFailSelector:@selector( ticket:failedWithError: )];
     // Update the ticket in the dictionary for the next batch.
-    [dictionary setObject:ticket forKey:KEY_TICKET];
+    [dictionary setObject:newTicket forKey:KEY_TICKET];
   }
 }
 
-- (void)deleteCalendarEvent:(GDataEntryCalendarEvent *)calendarEvent{
-  [googleCalendarService deleteCalendarEventEntry:calendarEvent
+- (void)deleteCalendarEvent:(GDataEntryCalendarEvent *)event{
+  [googleCalendarService deleteCalendarEventEntry:event
                                          delegate:self
                                 didFinishSelector:nil
                                   didFailSelector:@selector( ticket:failedWithError: )];
 }
 
-- (void)insertCalendarEvent:(GDataEntryCalendarEvent *)newEvent toCalendar:(GDataEntryCalendar *)calendar{
-  [googleCalendarService fetchCalendarEventByInsertingEntry:newEvent
+- (void)insertCalendarEvent:(GDataEntryCalendarEvent *)event toCalendar:(GDataEntryCalendar *)calendar{
+  [googleCalendarService fetchCalendarEventByInsertingEntry:event
                                                  forFeedURL:[[calendar alternateLink] URL]
                                                    delegate:self
                                           didFinishSelector:@selector( insertTicket:finishedWithEntry: )
@@ -187,9 +183,9 @@
   [self refresh];
 }
 
-- (void)updateCalendarEvent:(GDataEntryCalendarEvent *)newEvent toCalendar:(GDataEntryCalendar *)calendar{
-  [googleCalendarService fetchCalendarEventEntryByUpdatingEntry:newEvent
-                                                    forEntryURL:[[calendar alternateLink] URL]
+- (void)updateCalendarEvent:(GDataEntryCalendarEvent *)event{
+  [googleCalendarService fetchCalendarEventEntryByUpdatingEntry:event
+                                                    forEntryURL:[[event editLink] URL]
                                                        delegate:self
                                               didFinishSelector:nil
                                                 didFailSelector:@selector( ticket:failedWithError: )];
@@ -318,7 +314,24 @@
   return UITableViewCellEditingStyleNone;
 }
 
-#pragma mark Table Selection
+#pragma mark Editing
+
+- (void)editEntryAtIndexPath:(NSIndexPath *)indexPath{
+  // Go to edit view
+  NSDictionary *dictionary = [self dictionaryForIndexPath:indexPath];
+  if( dictionary ){
+    GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
+    // Make a local reference to the editing view controller.
+    EditingViewController *controller = self.editingViewController;
+    // Pass the item being edited to the editing controller.
+    // If the user clicked on the "add new entry" record, this will be nil, and the controller will create a new one.
+    controller.editingEvent = [self eventForIndexPath:indexPath];
+    // Also pass the containing calendar, so that it may add new entries to it.
+    controller.editingCalendar = calendar;
+    controller.rootViewController = self;
+    [self.navigationController pushViewController:controller animated:YES];
+  }
+}
 
 // Called after selection. In editing mode, this will navigate to a new view controller.
 - (void)tableView:(UITableView *)aTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -329,23 +342,8 @@
   
   // Don't maintain the selection. We will navigate to a new view so there's no reason to keep the selection here.
   [self.tableView deselectRowAtIndexPath:indexPath animated:NO];
-  // Go to edit view
-  NSDictionary *dictionary = [self dictionaryForIndexPath:indexPath];
-  if( dictionary ){
-    // Make a local reference to the editing view controller.
-    EditingViewController *controller = self.editingViewController;
-    controller.dictionary = dictionary;
-    // Pass the item being edited to the editing controller.
-    // If the user clicked on the "add new entry" record, this will be nil, and the controller will create a new one.
-    controller.editingEvent = [self eventForIndexPath:indexPath]; 
-    controller.rootViewController = self;
-    GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
-    controller.calendarName = [[calendar title] stringValue];
-    [self.navigationController pushViewController:controller animated:YES];
-  }
+  [self editEntryAtIndexPath:indexPath];
 }
-
-#pragma mark Editing
 
 // Set the editing state of the view controller. We pass this down to the table view and also modify the content
 // of the table to insert a placeholder row for adding content when in editing mode.
@@ -387,21 +385,9 @@
         }
       }
     }break;
-    case UITableViewCellEditingStyleInsert:{
-      NSDictionary *dictionary = [self dictionaryForIndexPath:indexPath];
-      if( dictionary ){
-        // Make a local reference to the editing view controller.
-        EditingViewController *controller = self.editingViewController;
-        // A "nil" editingItem indicates the editor should create a new item.
-        controller.editingEvent = nil;
-        // The calendar's dictionary to which the new item should be added.
-        controller.dictionary = dictionary;
-        controller.rootViewController = self;
-        GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
-        controller.calendarName = [[calendar title] stringValue];
-        [self.navigationController pushViewController:controller animated:YES];
-      }      
-    }break;
+    case UITableViewCellEditingStyleInsert:
+      [self editEntryAtIndexPath:indexPath];
+    break;
   }
 }
 
