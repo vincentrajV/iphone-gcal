@@ -10,22 +10,22 @@
 
 @implementation EditingViewController
 
-@synthesize rootViewController, editingEvent, dictionary, calendarName;
+@synthesize rootViewController, editingEvent, editingCalendar;
 
 - (void)viewWillAppear:(BOOL)animated{
-  self.title = calendarName;
+  self.title = [[editingCalendar title] stringValue];
   // If the editing item is nil, that indicates a new item should be created
   if( !editingEvent ){
     what.text = @"";
     where.text = @"";
     when.date = [NSDate dateWithTimeIntervalSinceNow:60*30];  // Defaults to 30 minutes from now...
-    newItem = YES;
   }else{
+    NSLog( @"Modifying item: %@", editingEvent );
+    
     GDataWhen *eventWhen = [[editingEvent objectsForExtensionClass:[GDataWhen class]] objectAtIndex:0];
     what.text = [[editingEvent title] stringValue];
     where.text = [[[editingEvent locations] objectAtIndex:0] stringValue];
     when.date = [[eventWhen startTime] date];
-    newItem = NO;
   }
 }
 
@@ -56,26 +56,27 @@
 }
 
 - (IBAction)cancel{
-  newItem = NO;
   [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (IBAction)save{
-  GDataEntryCalendar *calendar = [dictionary objectForKey:KEY_CALENDAR];
   GDataDateTime *time = [GDataDateTime dateTimeWithDate:when.date timeZone:when.timeZone];
-  
-  if( newItem ){
+
+  if( !editingEvent ){  // If an editingItem wasn't provided, then we're creating a new entry.
     GDataEntryCalendarEvent *newEntry = [GDataEntryCalendarEvent calendarEvent];
     [newEntry setTitleWithString:what.text];
     [newEntry addLocation:[GDataWhere whereWithString:where.text]];
     [newEntry addTime:[GDataWhen whenWithStartTime:time endTime:time]];
-    [rootViewController insertCalendarEvent:newEntry toCalendar:calendar];
-    newItem = NO;
+    [rootViewController insertCalendarEvent:newEntry toCalendar:editingCalendar];
   }else{
     [editingEvent setTitleWithString:what.text];
     [editingEvent setLocations:[NSArray arrayWithObject:[GDataWhere whereWithString:where.text]]];
+    // I haven't figured this out yet, but calling setTimes throws an exception, since the editingEvent is *not* an instance of
+    // GDataEntryCalendarEvent, but of GDataEntryCalendar.  I suspect it's a bug in Google's client libs, but I'm not certain.
+    // These entries came from the fetching of each calendar's alternateLinks, which *should* have returned GDataEntryCalendarEvent objects,
+    // according to Google's documentation and samples.
 //    [editingEvent setTimes:[NSArray arrayWithObject:[GDataWhen whenWithStartTime:time endTime:time]]];
-    [rootViewController updateCalendarEvent:editingEvent toCalendar:calendar];
+    [rootViewController updateCalendarEvent:editingEvent];
   }
 
   [self.navigationController popViewControllerAnimated:YES];
@@ -84,11 +85,10 @@
 - (void)dealloc{
   [rootViewController release];
   [editingEvent release];
-  [dictionary release];
+  [editingCalendar release];
   [what release];
   [when release];
   [where release];
-  [calendarName release];
   [headerView release];
   [super dealloc];
 }
