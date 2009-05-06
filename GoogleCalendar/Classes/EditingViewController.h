@@ -12,18 +12,15 @@
 @interface EditingViewController : UIViewController <UITextFieldDelegate>{
   RootViewController *rootViewController;
   GDataEntryCalendarEvent *editingEvent;
-  NSDictionary *dictionary;
-  BOOL newItem;
+  GDataEntryCalendar *editingCalendar;
   IBOutlet UITextField *what;
   IBOutlet UIDatePicker *when;
   IBOutlet UITextField *where;
-  NSString *calendarName;
   UIView *headerView;
 }
 
 @property (nonatomic, retain) RootViewController *rootViewController;
 @property (nonatomic, retain) GDataEntryCalendarEvent *editingEvent;
-@property (nonatomic, retain) NSDictionary *dictionary;
-@property (nonatomic, retain) NSString *calendarName;
+@property (nonatomic, retain) GDataEntryCalendar *editingCalendar;
 
 @end
