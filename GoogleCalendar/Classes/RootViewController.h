@@ -29,7 +29,7 @@
 @property (nonatomic, retain) GDataServiceGoogleCalendar *googleCalendarService;
 
 - (void)refresh;
-- (void)insertCalendarEvent:(GDataEntryCalendarEvent *)newEvent toCalendar:(GDataEntryCalendar *)calendar;
-- (void)updateCalendarEvent:(GDataEntryCalendarEvent *)newEvent toCalendar:(GDataEntryCalendar *)calendar;
+- (void)insertCalendarEvent:(GDataEntryCalendarEvent *)event toCalendar:(GDataEntryCalendar *)calendar;
+- (void)updateCalendarEvent:(GDataEntryCalendarEvent *)event;
 
 @end
