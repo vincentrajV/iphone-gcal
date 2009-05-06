@@ -15,13 +15,13 @@
   if( self=[super initWithFrame:frame reuseIdentifier:reuseIdentifier] ){
     // Initialize the labels, their fonts, colors, alignment, and background color.
     date = [[UILabel alloc] initWithFrame:CGRectZero];
-    date.font = [UIFont boldSystemFontOfSize:10];
+    date.font = [UIFont boldSystemFontOfSize:12];
     date.textColor = [UIColor darkGrayColor];
     date.textAlignment = UITextAlignmentRight;
     date.backgroundColor = [UIColor clearColor];
     
     time = [[UILabel alloc] initWithFrame:CGRectZero];
-    time.font = [UIFont boldSystemFontOfSize:10];
+    time.font = [UIFont boldSystemFontOfSize:12];
     time.textColor = [UIColor darkGrayColor];
     time.textAlignment = UITextAlignmentRight;
     time.backgroundColor = [UIColor clearColor];
@@ -92,16 +92,16 @@
   prompt.frame = rect;
 
   // First column...
-  rect.size.width = 60;
+  rect.size.width = 50;
   rect.origin.x -= 15;
-  rect.origin.y -= 5;
+  rect.origin.y -= 7;
   date.frame = rect;
-  rect.origin.y += 13;
+  rect.origin.y += 15;
   time.frame = rect;
 
   // Second column...
-  rect.size.width = baseRect.size.width - 70;
-  rect.origin.x += 70;
+  rect.size.width = baseRect.size.width - 60;
+  rect.origin.x += 60;
   rect.origin.y -= 15;
   name.frame = rect;
   rect.origin.y += 14;
