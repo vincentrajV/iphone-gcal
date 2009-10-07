@@ -124,7 +124,7 @@
       [dictionary setObject:calendar forKey:KEY_CALENDAR];
       [dictionary setObject:[[NSMutableArray alloc] init] forKey:KEY_EVENTS];
 
-      if( [calendar editLink] )  // We can determine whether the calendar is under user's control by the existence of its edit link.
+      if( [calendar ACLLink] )  // We can determine whether the calendar is under user's control by the existence of its edit link.
         [dictionary setObject:KEY_EDITABLE forKey:KEY_EDITABLE];
 
       NSURL *feedURL = [[calendar alternateLink] URL];
