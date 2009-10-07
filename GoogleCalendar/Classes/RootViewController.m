@@ -84,137 +84,137 @@
   // Note: The next call returns a ticket, that could be used to cancel the current request if the user chose to abort early.
   // However since I didn't expose such a capability to the user, I don't even assign it to a variable.
   [data removeAllObjects];
-	
-	[googleCalendarService fetchCalendarFeedForUsername:[AppDelegate appDelegate].username
-																						 delegate:self
-																		didFinishSelector:@selector( calendarsTicket:finishedWithFeed:error: )];
+
+  [googleCalendarService fetchCalendarFeedForUsername:[AppDelegate appDelegate].username
+                                             delegate:self
+                                    didFinishSelector:@selector( calendarsTicket:finishedWithFeed:error: )];
 }
 
 - (void)handleError:(NSError *)error{
-	NSString *title, *msg;
-	if( [error code]==kGDataBadAuthentication ){
-		title = @"Authentication Failed";
-		msg = @"Invalid username/password\n\nPlease go to the iPhone's settings to change your Google account credentials.";
-	}else{
-		// some other error authenticating or retrieving the GData object or a 304 status
-		// indicating the data has not been modified since it was previously fetched
-		title = @"Unknown Error";
-		msg = [error localizedDescription];
-	}
-	
-	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title
-																									message:msg
-																								 delegate:nil
-																				cancelButtonTitle:@"Ok"
-																				otherButtonTitles:nil];
-	[alert show];
-	[alert release];
+  NSString *title, *msg;
+  if( [error code]==kGDataBadAuthentication ){
+    title = @"Authentication Failed";
+    msg = @"Invalid username/password\n\nPlease go to the iPhone's settings to change your Google account credentials.";
+  }else{
+    // some other error authenticating or retrieving the GData object or a 304 status
+    // indicating the data has not been modified since it was previously fetched
+    title = @"Unknown Error";
+    msg = [error localizedDescription];
+  }
+
+  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title
+                                                  message:msg
+                                                 delegate:nil
+                                        cancelButtonTitle:@"Ok"
+                                        otherButtonTitles:nil];
+  [alert show];
+  [alert release];
 }
 
 - (void)calendarsTicket:(GDataServiceTicket *)ticket finishedWithFeed:(GDataFeedCalendar *)feed error:(NSError *)error{
-	if( !error ){
-		int count = [[feed entries] count];
-		for( int i=0; i<count; i++ ){
-			GDataEntryCalendar *calendar = [[feed entries] objectAtIndex:i];
+  if( !error ){
+    int count = [[feed entries] count];
+    for( int i=0; i<count; i++ ){
+      GDataEntryCalendar *calendar = [[feed entries] objectAtIndex:i];
 
-			// Create a dictionary containing the calendar and the ticket to fetch its events.
-			NSMutableDictionary *dictionary = [[NSMutableDictionary alloc] init];
-			[data addObject:dictionary];
+      // Create a dictionary containing the calendar and the ticket to fetch its events.
+      NSMutableDictionary *dictionary = [[NSMutableDictionary alloc] init];
+      [data addObject:dictionary];
 
-			[dictionary setObject:calendar forKey:KEY_CALENDAR];
-			[dictionary setObject:[[NSMutableArray alloc] init] forKey:KEY_EVENTS];
+      [dictionary setObject:calendar forKey:KEY_CALENDAR];
+      [dictionary setObject:[[NSMutableArray alloc] init] forKey:KEY_EVENTS];
 
-			if( [calendar editLink] )  // We can determine whether the calendar is under user's control by the existence of its edit link.
-				[dictionary setObject:KEY_EDITABLE forKey:KEY_EDITABLE];
-    
-			NSURL *feedURL = [[calendar alternateLink] URL];
-			if( feedURL ){
-				GDataQueryCalendar* query = [GDataQueryCalendar calendarQueryWithFeedURL:feedURL];
-      
-				// Currently, the app just shows calendar entries from 15 days ago to 31 days from now.
-				// Ideally, we would instead use similar controls found in Google Calendar web interface, or even iCal's UI.
-				NSDate *minDate = [NSDate date];  // From right now...
-				NSDate *maxDate = [NSDate dateWithTimeIntervalSinceNow:60*60*24*90];  // ...to 90 days from now.
-      
-				[query setMinimumStartTime:[GDataDateTime dateTimeWithDate:minDate timeZone:[NSTimeZone systemTimeZone]]];
-				[query setMaximumStartTime:[GDataDateTime dateTimeWithDate:maxDate timeZone:[NSTimeZone systemTimeZone]]];
-				[query setOrderBy:@"starttime"];  // http://code.google.com/apis/calendar/docs/2.0/reference.html#Parameters
-				[query setIsAscendingOrder:YES];
-				[query setShouldExpandRecurrentEvents:YES];
+      if( [calendar editLink] )  // We can determine whether the calendar is under user's control by the existence of its edit link.
+        [dictionary setObject:KEY_EDITABLE forKey:KEY_EDITABLE];
 
-				GDataServiceTicket *ticket = [googleCalendarService fetchFeedWithQuery:query
-																																			delegate:self
-																														 didFinishSelector:@selector( eventsTicket:finishedWithEntries:error: )];
-				// I add the service ticket to the dictionary to make it easy to find which calendar each reply belongs to.
-				[dictionary setObject:ticket forKey:KEY_TICKET];
-			}
-		}
-	}else
-		[self handleError:error];
+      NSURL *feedURL = [[calendar alternateLink] URL];
+      if( feedURL ){
+        GDataQueryCalendar* query = [GDataQueryCalendar calendarQueryWithFeedURL:feedURL];
+
+        // Currently, the app just shows calendar entries from 15 days ago to 31 days from now.
+        // Ideally, we would instead use similar controls found in Google Calendar web interface, or even iCal's UI.
+        NSDate *minDate = [NSDate date];  // From right now...
+        NSDate *maxDate = [NSDate dateWithTimeIntervalSinceNow:60*60*24*90];  // ...to 90 days from now.
+
+        [query setMinimumStartTime:[GDataDateTime dateTimeWithDate:minDate timeZone:[NSTimeZone systemTimeZone]]];
+        [query setMaximumStartTime:[GDataDateTime dateTimeWithDate:maxDate timeZone:[NSTimeZone systemTimeZone]]];
+        [query setOrderBy:@"starttime"];  // http://code.google.com/apis/calendar/docs/2.0/reference.html#Parameters
+        [query setIsAscendingOrder:YES];
+        [query setShouldExpandRecurrentEvents:YES];
+
+        GDataServiceTicket *ticket = [googleCalendarService fetchFeedWithQuery:query
+                                                                      delegate:self
+                                                             didFinishSelector:@selector( eventsTicket:finishedWithEntries:error: )];
+        // I add the service ticket to the dictionary to make it easy to find which calendar each reply belongs to.
+        [dictionary setObject:ticket forKey:KEY_TICKET];
+      }
+    }
+  }else
+    [self handleError:error];
 
   [self.tableView reloadData];
 }
 
 - (void)eventsTicket:(GDataServiceTicket *)ticket finishedWithEntries:(GDataFeedCalendarEvent *)feed error:(NSError *)error{
-	if( !error ){
-		NSMutableDictionary *dictionary;
-		for( int section=0; section<[data count]; section++ ){
-			NSMutableDictionary *nextDictionary = [data objectAtIndex:section];
-			GDataServiceTicket *nextTicket = [nextDictionary objectForKey:KEY_TICKET];
-			if( nextTicket==ticket ){		// We've found the calendar these events are meant for...
-				dictionary = nextDictionary;
-				break;
-			}
-		}
-		
-		if( !dictionary )
-			return;		// This should never happen.  It means we couldn't find the ticket it relates to.
-		
-		int count = [[feed entries] count];
-		
-		NSMutableArray *events = [dictionary objectForKey:KEY_EVENTS];
-		for( int i=0; i<count; i++ )
-			[events addObject:[[feed entries] objectAtIndex:i]];
-		
-		[self.tableView reloadData];
-		
-		NSURL *nextURL = [[feed nextLink] URL];
-		if( nextURL ){    // There are more events in the calendar...  Fetch again.
-			GDataServiceTicket *newTicket = [googleCalendarService fetchFeedWithURL:nextURL
-																																		 delegate:self
-																														didFinishSelector:@selector( eventsTicket:finishedWithEntries:error: )];   // Right back here...
-			// Update the ticket in the dictionary for the next batch.
-			[dictionary setObject:newTicket forKey:KEY_TICKET];
-		}
-	}else
-  	[self handleError:error];
+  if( !error ){
+    NSMutableDictionary *dictionary;
+    for( int section=0; section<[data count]; section++ ){
+      NSMutableDictionary *nextDictionary = [data objectAtIndex:section];
+      GDataServiceTicket *nextTicket = [nextDictionary objectForKey:KEY_TICKET];
+      if( nextTicket==ticket ){		// We've found the calendar these events are meant for...
+        dictionary = nextDictionary;
+        break;
+      }
+    }
+
+    if( !dictionary )
+      return;		// This should never happen.  It means we couldn't find the ticket it relates to.
+
+    int count = [[feed entries] count];
+
+    NSMutableArray *events = [dictionary objectForKey:KEY_EVENTS];
+    for( int i=0; i<count; i++ )
+      [events addObject:[[feed entries] objectAtIndex:i]];
+
+    [self.tableView reloadData];
+
+    NSURL *nextURL = [[feed nextLink] URL];
+    if( nextURL ){    // There are more events in the calendar...  Fetch again.
+      GDataServiceTicket *newTicket = [googleCalendarService fetchFeedWithURL:nextURL
+                                                                     delegate:self
+                                                            didFinishSelector:@selector( eventsTicket:finishedWithEntries:error: )];   // Right back here...
+      // Update the ticket in the dictionary for the next batch.
+      [dictionary setObject:newTicket forKey:KEY_TICKET];
+    }
+  }else
+    [self handleError:error];
 }
 
 - (void)deleteCalendarEvent:(GDataEntryCalendarEvent *)event{
   [googleCalendarService deleteEntry:event
-														delegate:self
-									 didFinishSelector:nil];
+                            delegate:self
+                   didFinishSelector:nil];
 }
 
 - (void)insertCalendarEvent:(GDataEntryCalendarEvent *)event toCalendar:(GDataEntryCalendar *)calendar{
   [googleCalendarService fetchEntryByInsertingEntry:event
-																				 forFeedURL:[[calendar alternateLink] URL]
-																					 delegate:self
-																	didFinishSelector:@selector( insertTicket:finishedWithEntry:error: )];
+                                         forFeedURL:[[calendar alternateLink] URL]
+                                           delegate:self
+                                  didFinishSelector:@selector( insertTicket:finishedWithEntry:error: )];
 }
 
 - (void)insertTicket:(GDataServiceTicket *)ticket finishedWithEntry:(GDataEntryCalendarEvent *)entry error:(NSError *)error{
-	if( !error )
-		[self refresh];
-	else
-		[self handleError:error];
+  if( !error )
+    [self refresh];
+  else
+    [self handleError:error];
 }
 
 - (void)updateCalendarEvent:(GDataEntryCalendarEvent *)event{
   [googleCalendarService fetchEntryByUpdatingEntry:event
-																			 forEntryURL:[[event editLink] URL]
-																					delegate:self
-																 didFinishSelector:nil];
+                                       forEntryURL:[[event editLink] URL]
+                                          delegate:self
+                                 didFinishSelector:nil];
 }
 
 #pragma mark Table Content and Appearance
@@ -256,7 +256,7 @@
   DetailCell *cell = (DetailCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
   if( !cell ){
     cell = [[[DetailCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
-		cell.accessoryType = UITableViewCellAccessoryNone;
+    cell.accessoryType = UITableViewCellAccessoryNone;
   }
   
   cell.date.text = cell.time.text = cell.name.text = cell.addr.text = @"";
@@ -268,21 +268,21 @@
     GDataWhen *when = [[event objectsForExtensionClass:[GDataWhen class]] objectAtIndex:0];
     if( when ){
       NSDate *date = [[when startTime] date];
-			NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-			
-			[dateFormatter setDateFormat:@"yy-MM-dd"];
-			cell.date.text = [dateFormatter stringFromDate:date];
-			[dateFormatter setDateFormat:@"HH:mm"];
-			cell.time.text = [dateFormatter stringFromDate:date];
-			
-			[dateFormatter release];
+      NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+
+      [dateFormatter setDateFormat:@"yy-MM-dd"];
+      cell.date.text = [dateFormatter stringFromDate:date];
+      [dateFormatter setDateFormat:@"HH:mm"];
+      cell.time.text = [dateFormatter stringFromDate:date];
+
+      [dateFormatter release];
     }
     cell.name.text = [[event title] stringValue];
     // Note: An event might have multiple locations.  We're only displaying the first one.
     GDataWhere *addr = [[event locations] objectAtIndex:0];
     if( addr )
       cell.addr.text = [addr stringValue];
-      
+
     cell.promptMode = NO;
   }else{
     cell.prompt.text = @"Create new event";
